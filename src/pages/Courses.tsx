@@ -2,24 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import '../App.css'
 
-// Theme toggle hook
-function useTheme() {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark'
-    }
-    return false
-  })
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
-    localStorage.setItem('theme', isDark ? 'dark' : 'light')
-  }, [isDark])
-
-  const toggleTheme = () => setIsDark(!isDark)
-  return { isDark, toggleTheme }
-}
-
 interface Course {
   id: number
   title: string
@@ -39,7 +21,6 @@ interface Course {
 
 function Courses() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const { isDark, toggleTheme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const courses: Course[] = [
@@ -247,17 +228,6 @@ function Courses() {
               <Link to="/software-support" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Software Support</Link>
               <Link to="/lms" className="nav-link" onClick={() => setMobileMenuOpen(false)}>LMS</Link>
             </nav>
-
-            <div className="header-actions">
-              <button
-                className="theme-toggle"
-                onClick={toggleTheme}
-                aria-label="Toggle dark mode"
-                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                <span className="theme-icon">{isDark ? '☀️' : '🌙'}</span>
-              </button>
-            </div>
           </div>
 
           <button

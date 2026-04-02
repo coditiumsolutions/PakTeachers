@@ -2,28 +2,9 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import '../App.css'
 
-// Theme toggle hook
-function useTheme() {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark'
-    }
-    return false
-  })
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
-    localStorage.setItem('theme', isDark ? 'dark' : 'light')
-  }, [isDark])
-
-  const toggleTheme = () => setIsDark(!isDark)
-  return { isDark, toggleTheme }
-}
-
 type UserType = 'student' | 'teacher' | 'admin' | null
 
 function LMS() {
-  const { isDark, toggleTheme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userType, setUserType] = useState<UserType>(null)
   const [email, setEmail] = useState('')
@@ -70,17 +51,6 @@ function LMS() {
                 <Link to="/software-support" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Software Support</Link>
                 <Link to="/lms" className="nav-link" onClick={() => setMobileMenuOpen(false)}>LMS</Link>
               </nav>
-
-              <div className="header-actions">
-                <button
-                  className="theme-toggle"
-                  onClick={toggleTheme}
-                  aria-label="Toggle dark mode"
-                  title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-                >
-                  <span className="theme-icon">{isDark ? '☀️' : '🌙'}</span>
-                </button>
-              </div>
             </div>
 
             <button
@@ -401,19 +371,9 @@ function LMS() {
               <Link to="/lms/profile" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
             </nav>
 
-            <div className="header-actions">
-              <button
-                className="theme-toggle"
-                onClick={toggleTheme}
-                aria-label="Toggle dark mode"
-                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                <span className="theme-icon">{isDark ? '☀️' : '🌙'}</span>
-              </button>
-              <button onClick={handleLogout} className="btn btn-outline">
-                Logout
-              </button>
-            </div>
+            <button onClick={handleLogout} className="btn btn-outline">
+              Logout
+            </button>
           </div>
         </div>
       </header>
