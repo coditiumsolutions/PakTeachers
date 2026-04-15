@@ -2,155 +2,150 @@
 
 ## Project Overview
 
-**PakTeachers** is an online schooling website built with **React 19**, **TypeScript**, and **Vite**. It serves as a landing page for an educational platform offering various learning programs including general schooling, courses, Quran teaching, trial classes, and a Learning Management System (LMS).
+**PakTeachers** is a Lahore-based virtual schooling platform connecting Pakistani students with certified, experienced teachers for live online classes. The website is a multi-page React app (not a single-page landing) covering Quran teaching, academic schooling (Grades 1–12), trial classes, LMS, and software support.
 
-### Technology Stack
+## Technology Stack
 
 | Category | Technology |
 |----------|------------|
-| Framework | React 19.2.4 |
+| Framework | React 19 |
 | Language | TypeScript 5.9 |
-| Build Tool | Vite 8.0.1 |
-| Styling | Custom CSS (CSS Variables) |
+| Build Tool | Vite 8 (uses OXC transformer — **ASCII-only in JSX strings**) |
+| Styling | Tailwind CSS v4 (`@import "tailwindcss"` in `src/index.css`, `@tailwindcss/vite` plugin — no `tailwind.config.js`) |
+| Routing | React Router v7 |
 | Linting | ESLint 9.x with TypeScript ESLint |
 
-### Project Structure
+> **Critical**: Vite 8's OXC transformer rejects Unicode smart/curly quotes in JSX. Always use ASCII straight quotes. Use `\uXXXX` escapes for special characters (emoji, stars, etc.) in string literals.
+
+## Commands
+
+```bash
+npm run dev       # Start dev server (Vite HMR)
+npm run build     # Type-check + production build (tsc -b && vite build)
+npm run lint      # ESLint across all TS/TSX files
+npm run preview   # Preview the production build locally
+```
+
+No test suite is configured yet.
+
+## Project Structure
 
 ```
 pakteachers/
 ├── public/
-│   ├── favicon.svg      # Site favicon
-│   └── icons.svg        # SVG icon sprites
+│   └── logo01.png          # Brand logo (served from root)
 ├── src/
-│   ├── assets/          # Static assets (images, etc.)
-│   ├── App.tsx          # Main application component
-│   ├── App.css          # Component-specific styles
-│   ├── index.css        # Global styles
-│   └── main.tsx         # Application entry point
-├── index.html           # HTML entry point
-├── package.json         # Dependencies and scripts
-├── tsconfig.json        # TypeScript configuration
-├── tsconfig.app.json    # App-specific TS config
-├── tsconfig.node.json   # Node-specific TS config
-├── vite.config.ts       # Vite configuration
-└── eslint.config.js     # ESLint configuration
+│   ├── assets/             # hero.png, react.svg, vite.svg (NOT the logo)
+│   ├── components/
+│   │   ├── PrimaryNavbar.tsx    # White top bar: logo + contact info
+│   │   ├── SecondaryNavbar.tsx  # Indigo-950 bar: route links
+│   │   ├── Footer.tsx           # Full footer with links & contact
+│   │   ├── HeroSlider.tsx       # Auto-advancing image carousel
+│   │   └── FeatureSection.tsx   # 3-card "What we offer" grid
+│   ├── layouts/
+│   │   └── MainLayout.tsx       # PrimaryNavbar + SecondaryNavbar + <Outlet> + Footer
+│   ├── pages/
+│   │   ├── HomePage.tsx
+│   │   ├── SchoolPage.tsx
+│   │   ├── CoursesPage.tsx
+│   │   ├── TrialPage.tsx
+│   │   ├── LMSPage.tsx
+│   │   ├── SoftwareSupportPage.tsx
+│   │   └── PlaceholderPage.tsx
+│   ├── App.tsx              # BrowserRouter + Routes
+│   ├── index.css            # Global styles + --nav-stack-height CSS var
+│   └── main.tsx             # Entry point
+├── index.html
+├── package.json
+├── tsconfig.json / tsconfig.app.json / tsconfig.node.json
+├── vite.config.ts
+└── eslint.config.js
 ```
 
-## Building and Running
+## Architecture
 
-### Prerequisites
+### Layout & Navigation
 
-- Node.js (latest LTS recommended)
-- npm
+`MainLayout` (`src/layouts/MainLayout.tsx`) wraps all routes via React Router `<Outlet>`. It stacks two fixed navbars:
 
-### Installation
+- **PrimaryNavbar** (white, `h-24` mobile / `h-28` sm+): Brand logo (left) + contact info (right, hidden on mobile). **No anchor links — those were removed.**
+- **SecondaryNavbar** (indigo-950, `min-h-14`, fixed below primary at `top-24` / `sm:top-28`): Route links using React Router `<Link>` with active-state highlighting.
 
-```bash
-npm install
-```
+CSS custom property `--nav-stack-height` in `src/index.css` tracks combined height:
+- Mobile: `calc(6rem + 3.5rem + 2px)`
+- `sm+`: `calc(7rem + 3.5rem + 2px)`
 
-### Development
+**Update this variable whenever either navbar height changes.**
 
-Start the development server with hot module replacement (HMR):
+Tailwind v4 canonical syntax for scroll offset: `scroll-mt-(--nav-stack-height)` (not `scroll-mt-[var(...)]`).
 
-```bash
-npm run dev
-```
+### Routing
 
-### Production Build
+| Path | Component |
+|------|-----------|
+| `/` | `HomePage` |
+| `/school` | `SchoolPage` |
+| `/courses` | `CoursesPage` |
+| `/trial` | `TrialPage` |
+| `/lms/*` | `LMSPage` |
+| `/software-support` | `SoftwareSupportPage` |
+| `/apply` | `PlaceholderPage` |
+| `/find-tutor` | `PlaceholderPage` |
 
-Build for production:
+### SecondaryNavbar Links (in order)
 
-```bash
-npm run build
-```
+Home, School, Courses, Trial Classes, Software Support, LMS, Apply, Find Tutor
 
-This runs TypeScript compilation followed by Vite build.
+### PrimaryNavbar
 
-### Preview Production Build
+- **Left**: Logo (`/logo01.png`) as `<a href="/">` (not a React Router Link)
+- **Right**: Contact info block (`hidden sm:flex flex-col items-end gap-1.5 text-sm`)
+  - Phone: `+92 123 456 7890` (`tel:+921234567890`) with phone SVG icon
+  - Email: `info@pakteachers.com` (`mailto:info@pakteachers.com`) with envelope SVG icon
+  - Icons use `text-indigo-950`, `strokeWidth={1.75}`, Heroicons-style paths
 
-Preview the production build locally:
+### HomePage Structure
 
-```bash
-npm run preview
-```
+`src/pages/HomePage.tsx` composes:
+1. `<HeroSlider />` — full-width image carousel, 6s auto-advance, prev/next buttons, dot indicators, `aria-live`
+2. Stats bar (indigo-950) — 4 stats: 10,000+ Students, 100+ Teachers, 4.9★ Rating, 50+ Courses
+3. `<FeatureSection />` — 3-column "What we offer" cards (Quran Teaching, Academic Schooling, Trial Classes)
+4. `#about` section — About PakTeachers with 4 feature tiles
+5. `#how-it-works` section — 4-step numbered process
+6. CTA banner (indigo-950) — "Ready to start learning?" with links to `/trial` and `/courses`
 
-### Linting
+### CoursesPage
 
-Run ESLint:
+12 courses defined in a `courses` array. Category filter (All / Quran / Academic). Grid of course cards with pricing, features, ratings. "Why Choose Us" benefits section. Enrolment form at bottom.
 
-```bash
-npm run lint
-```
+### Footer
 
-## Development Conventions
+Four-column layout:
+- Col 1 (lg:col-span-1): Logo + tagline + contact info (email, phone, address, hours)
+- Col 2: Quick Links (School, Courses, Trial Classes, Software Support, LMS)
+- Col 3: Support links (Help Center, FAQ, Contact Us, Privacy Policy, Terms)
+- Col 4: Social (Facebook, Twitter, Instagram, YouTube)
+- Bottom bar: copyright + "Built with React & Tailwind CSS"
 
-### TypeScript Configuration
+## Business Information
 
-- **Strict mode enabled** - All strict type-checking options are on
-- **Target**: ES2023
-- **Module**: ESNext
-- **JSX**: react-jsx
-- **Module Resolution**: bundler
-- **No emit**: true (Vite handles bundling)
+- **Location**: Lahore, Pakistan
+- **Phone**: +92 123 456 7890
+- **Email**: info@pakteachers.com
+- **Hours**: Mon – Sat: 9 AM – 6 PM
+- **Offerings**: Quran (Nazira, Tajweed, Hifz, Tafseer), Academic (Grades 1–12, all major subjects)
+- **Delivery**: Live via Zoom / Google Meet, small class sizes, LMS dashboard for progress tracking
+- **Trial class**: from Rs. 400, no commitment
 
-Key compiler options:
-- `noUnusedLocals`: true
-- `noUnusedParameters`: true
-- `noFallthroughCasesInSwitch`: true
-- `noUncheckedSideEffectImports`: true
+## TypeScript Configuration
 
-### ESLint Configuration
+- Strict mode enabled
+- `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`, `noUncheckedSideEffectImports`: all true
+- Target: ES2023, Module: ESNext, JSX: react-jsx, ModuleResolution: bundler, noEmit: true
 
-The project uses a flat ESLint config with:
-- `@eslint/js` - Recommended JS rules
-- `typescript-eslint` - TypeScript-specific rules
-- `eslint-plugin-react-hooks` - React Hooks linting
-- `eslint-plugin-react-refresh` - Vite-specific React refresh rules
+## CSS / Tailwind Notes
 
-### CSS Styling
-
-- **Custom CSS with CSS Variables** - Not using any CSS framework
-- **CSS Variables** defined in `:root` for theming:
-  - `--primary`: #059669 (Emerald green)
-  - `--primary-dark`: #047857
-  - `--primary-light`: #10b981
-  - `--secondary`: #f59e0b (Amber)
-  - `--secondary-dark`: #d97706
-- **Responsive design** with breakpoints at 1024px and 768px
-- **Edge-to-edge sections** with internal padding (40px default)
-
-### Code Style
-
-- **Functional components** with React Hooks
-- **TypeScript** for type safety
-- **Semantic HTML** with proper ARIA attributes
-- **Mobile-first responsive design**
-- **Section-based page structure** with anchor navigation
-
-## Application Features
-
-### Landing Page Sections
-
-1. **Header** - Fixed navigation with logo and links (School, Courses, Quran Teaching, Trial Classes, LMS)
-2. **Hero** - Main banner with stats (10,000+ Students, 500+ Teachers, 100+ Courses)
-3. **Features** - 4-card grid highlighting key benefits
-4. **About** - School description with image placeholder
-5. **Courses** - 4-course grid (Mathematics, Science, English Literature, Computer Science)
-6. **Quran Teaching** - Feature list with enrollment CTA
-7. **Trial Classes CTA** - Full-width call-to-action section
-8. **LMS** - Learning Management System overview
-9. **Footer** - Links, contact info, and copyright
-
-### Navigation
-
-- Smooth scroll behavior enabled via CSS
-- Anchor-based navigation (#school, #courses, #quran, #trial, #lms)
-- Mobile hamburger menu for responsive design
-
-## Notes
-
-- This is a **landing page prototype** - backend integration and dynamic content loading are not implemented
-- Placeholder emoji icons are used for visual elements
-- Lorem ipsum text is used for content placeholders
-- The project is configured for Vite's development server and does not include server-side rendering (SSR)
+- Tailwind v4: no config file, just `@import "tailwindcss"` — utility classes are auto-detected
+- Color palette used: `slate-*`, `indigo-950`, `indigo-800/900`, `emerald-*`, `green-*`
+- `scroll-mt-(--nav-stack-height)` for sections that need scroll-offset (Tailwind v4 canonical shorthand)
+- `pt-[var(--nav-stack-height)]` on `<main>` to push content below fixed navbars

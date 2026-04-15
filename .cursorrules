@@ -12,36 +12,61 @@ No test suite is configured yet.
 ## Tech Stack
 
 - **React 19** + **TypeScript 5.9** via **Vite 8**
-- **Tailwind CSS v4** (imported as `@import "tailwindcss"` in [src/index.css](src/index.css); integrated via `@tailwindcss/vite` plugin — no `tailwind.config.js` needed)
+- **Tailwind CSS v4** (imported as `@import "tailwindcss"` in `src/index.css`; integrated via `@tailwindcss/vite` plugin — no `tailwind.config.js` needed)
 - **React Router v7** for client-side routing
+
+## Critical: OXC / Vite 8
+
+Vite 8 uses the OXC transformer which **rejects Unicode smart/curly quotes** in JSX strings. Always write ASCII straight quotes. Use `\uXXXX` escapes for special characters (emoji, ★, etc.) in string literals to avoid encoding issues.
 
 ## Architecture
 
 ### Layout & Navigation
 
-The app uses a single layout wrapper ([src/layouts/MainLayout.tsx](src/layouts/MainLayout.tsx)) rendered by React Router's `<Outlet>`. It stacks two fixed navbars at the top:
+The app uses a single layout wrapper (`src/layouts/MainLayout.tsx`) rendered by React Router's `<Outlet>`. It stacks two fixed navbars at the top:
 
-- **PrimaryNavbar** (white, `h-24`/`sm:h-28`) — brand logo + anchor links (`#home`, `#about`, `#services`, `#contact`) with a hamburger menu on mobile
-- **SecondaryNavbar** (indigo-950, `min-h-14`) — route links using React Router `<Link>`, with active-state highlighting
+- **PrimaryNavbar** (white, `h-24`/`sm:h-28`) — brand logo (left) + contact info (right, `hidden sm:flex`). **No anchor links.**
+- **SecondaryNavbar** (indigo-950, `min-h-14`, fixed at `top-24`/`sm:top-28`) — route links using React Router `<Link>`, with active-state highlighting.
 
-Because both navbars are `position: fixed`, a CSS custom property `--nav-stack-height` is defined in [src/index.css](src/index.css) to track the combined height (`6rem + 3.5rem + 2px` on mobile, `7rem + 3.5rem + 2px` on `sm+`). Every section that needs scroll offset uses `scroll-mt-[var(--nav-stack-height)]`. The main content area is padded with `pt-[var(--nav-stack-height)]`. **Update this variable if either navbar height changes.**
+Because both navbars are `position: fixed`, a CSS custom property `--nav-stack-height` is defined in `src/index.css` to track the combined height:
+- Mobile: `calc(6rem + 3.5rem + 2px)`
+- `sm+`: `calc(7rem + 3.5rem + 2px)`
+
+Every section that needs scroll offset uses `scroll-mt-(--nav-stack-height)` (Tailwind v4 canonical shorthand — **not** `scroll-mt-[var(--nav-stack-height)]`). The main content area is padded with `pt-[var(--nav-stack-height)]`. **Update `--nav-stack-height` if either navbar height changes.**
 
 ### Routing
 
-All routes are nested under `MainLayout` in [src/App.tsx](src/App.tsx). Non-implemented routes render `<PlaceholderPage title="...">`. Current routes:
+All routes are nested under `MainLayout` in `src/App.tsx`. Current routes:
 
 | Path | Component |
 |------|-----------|
 | `/` | `HomePage` |
-| `/school`, `/courses`, `/trial`, `/lms/*`, `/apply`, `/find-tutor` | `PlaceholderPage` |
+| `/school` | `SchoolPage` |
+| `/courses` | `CoursesPage` |
+| `/trial` | `TrialPage` |
+| `/lms/*` | `LMSPage` |
+| `/software-support` | `SoftwareSupportPage` |
+| `/apply` | `PlaceholderPage` |
+| `/find-tutor` | `PlaceholderPage` |
 
-### HomePage Structure
+### Component Overview
 
-[src/pages/HomePage.tsx](src/pages/HomePage.tsx) composes:
-1. `HeroSlider` — full-width image carousel with auto-advance (6 s), prev/next buttons, dot indicators, and `aria-live` for accessibility. Slides are defined as a `const` array at the top of [src/components/HeroSlider.tsx](src/components/HeroSlider.tsx).
-2. `FeatureSection` — 3-column card grid (collapses to 1 on mobile). Cards are a `const` array at the top of the file.
-3. Placeholder `<section>` blocks for `#about`, `#products`, `#blog`, `#login` anchor targets.
+- `PrimaryNavbar` — white top bar: logo (`/logo01.png`) as `<a href="/">` + contact block (phone + email with SVG icons)
+- `SecondaryNavbar` — indigo-950 route nav: Home, School, Courses, Trial Classes, Software Support, LMS, Apply, Find Tutor
+- `HeroSlider` — auto-advancing (6s) full-width image carousel with prev/next buttons and dot indicators
+- `FeatureSection` — 3-column "What we offer" card grid (Quran Teaching, Academic Schooling, Trial Classes)
+- `Footer` — 4-column footer: logo/contact, Quick Links, Support, Social
 
 ### Logo
 
-The logo is served from `/logo01.png` (public directory). The `src/assets/` folder contains `hero.png`, `react.svg`, and `vite.svg` but the logo itself lives in `public/`.
+The logo is served from `/logo01.png` (public directory). `src/assets/` contains `hero.png`, `react.svg`, and `vite.svg` — the logo itself lives in `public/`.
+
+### Business Info
+
+- Location: Lahore, Pakistan
+- Phone: +92 123 456 7890 (`tel:+921234567890`)
+- Email: info@pakteachers.com
+- Hours: Mon – Sat: 9 AM – 6 PM
+- Offerings: Quran (Nazira, Tajweed, Hifz, Tafseer), Academic Grades 1–12
+- Delivery: Live via Zoom / Google Meet, small class sizes, LMS dashboard
+- Trial class: from Rs. 400, no commitment
