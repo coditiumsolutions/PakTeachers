@@ -5,6 +5,7 @@ const links = [
   { to: '/school', label: 'School' },
   { to: '/courses', label: 'Courses' },
   { to: '/trial', label: 'Trial Classes' },
+  { to: '/software-support', label: 'Software Support' },
   { to: '/lms', label: 'LMS' },
   { to: '/apply', label: 'Apply' },
   { to: '/find-tutor', label: 'Find Tutor' },

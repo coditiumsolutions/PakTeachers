@@ -3,24 +3,24 @@ import { useCallback, useEffect, useState } from 'react'
 const slides = [
   {
     id: 1,
-    title: 'Build faster with modern tools',
-    subtitle: 'Placeholder headline for your hero slide.',
+    title: 'Quality Education, Delivered Online',
+    subtitle: 'Live Quran teaching and academic classes for Pakistani students — from primary to higher secondary, all from the comfort of home.',
     image:
-      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1920&q=80',
   },
   {
     id: 2,
-    title: 'Clean, minimal interfaces',
-    subtitle: 'Another slide with dummy copy and imagery.',
+    title: 'Learn from Pakistan\'s Best Teachers',
+    subtitle: 'Certified instructors conduct interactive live sessions via Zoom and Google Meet with small class sizes for personalised attention.',
     image:
-      'https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=1920&q=80',
   },
   {
     id: 3,
-    title: 'Responsive by default',
-    subtitle: 'Carousel auto-advances; use arrows to navigate manually.',
+    title: 'Quran, Science, Maths & More',
+    subtitle: 'From Nazira and Hifz to Physics and Computer Science — a complete curriculum under one platform.',
     image:
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1920&q=80',
   },
 ] as const
 
