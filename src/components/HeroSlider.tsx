@@ -44,9 +44,9 @@ export function HeroSlider() {
   return (
     <section
       id="home"
-      className="relative w-full scroll-mt-[var(--nav-stack-height)] overflow-hidden bg-slate-900"
+      className="relative w-full scroll-mt-(--nav-stack-height) overflow-hidden bg-slate-900"
     >
-      <div className="relative aspect-[16/10] min-h-[280px] max-h-[560px] w-full md:aspect-[21/9] md:min-h-[360px]">
+      <div className="relative aspect-16/10 min-h-70 max-h-140 w-full md:aspect-21/9 md:min-h-90">
         {slides.map((slide, i) => (
           <div
             key={slide.id}
@@ -61,7 +61,7 @@ export function HeroSlider() {
               className="h-full w-full object-cover"
               loading={i === 0 ? 'eager' : 'lazy'}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-end px-4 pb-12 pt-24 sm:px-6 md:px-8 lg:mx-auto lg:max-w-6xl lg:px-6">
               <h1 className="max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
                 {slide.title}

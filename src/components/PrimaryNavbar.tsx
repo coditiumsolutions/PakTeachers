@@ -17,7 +17,7 @@ export function PrimaryNavbar() {
           <img
             src="/logo01.png"
             alt=""
-            className="h-14 w-auto max-h-[5.5rem] object-contain object-left sm:h-[4.75rem] md:h-[5.25rem]"
+            className="h-14 w-auto max-h-22 object-contain object-left sm:h-19 md:h-21"
           />
         </a>
 
