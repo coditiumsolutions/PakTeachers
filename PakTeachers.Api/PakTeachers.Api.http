@@ -1,0 +1,16 @@
+@PakTeachers.Api_HostAddress = http://localhost:5065
+
+POST {{PakTeachers.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "password123"
+}
+
+###
+
+GET {{PakTeachers.Api_HostAddress}}/test-db
+Accept: application/json
+
+###
