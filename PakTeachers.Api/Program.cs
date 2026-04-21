@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -27,9 +28,34 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("TeacherSelfOrAdmin", policy =>
+        policy.RequireAssertion(ctx =>
+        {
+            var role = ctx.User.FindFirstValue(ClaimTypes.Role) ?? "";
+            if (role.Equals("super_admin", StringComparison.OrdinalIgnoreCase)
+             || role.Equals("admin", StringComparison.OrdinalIgnoreCase)
+             || role.Equals("support", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (!role.Equals("teacher", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var userIdClaim = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdClaim, out var userId))
+                return false;
+
+            var routeId = ctx.Resource is HttpContext http
+                ? http.GetRouteValue("id")?.ToString()
+                : null;
+
+            return int.TryParse(routeId, out var routeTeacherId) && userId == routeTeacherId;
+        }));
+});
 builder.Services.AddControllers();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
