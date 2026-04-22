@@ -32,7 +32,7 @@ public class AuthService(PakTeachersDbContext db, IConfiguration config) : IAuth
             {
                 username = teacher.Username;
                 passwordHash = teacher.PasswordHash;
-                role = "Teacher";
+                role = "teacher";
                 userId = teacher.TeacherId;
             }
             else
@@ -42,7 +42,7 @@ public class AuthService(PakTeachersDbContext db, IConfiguration config) : IAuth
                 {
                     username = student.Username;
                     passwordHash = student.PasswordHash;
-                    role = "Student";
+                    role = "student";
                     userId = student.StudentId;
                 }
             }
@@ -87,7 +87,7 @@ public class AuthService(PakTeachersDbContext db, IConfiguration config) : IAuth
                 Id = teacher.TeacherId,
                 Username = teacher.Username,
                 FullName = teacher.FullName,
-                Role = "Teacher"
+                Role = "teacher"
             });
         }
 
@@ -100,7 +100,7 @@ public class AuthService(PakTeachersDbContext db, IConfiguration config) : IAuth
                 Id = student.StudentId,
                 Username = student.Username,
                 FullName = student.FullName,
-                Role = "Student"
+                Role = "student"
             });
         }
 

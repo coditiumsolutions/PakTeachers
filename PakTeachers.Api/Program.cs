@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PakTeachers.Api.Authorization;
 using PakTeachers.Api.Data;
 using PakTeachers.Api.Services;
 using Scalar.AspNetCore;
@@ -53,6 +55,9 @@ builder.Services.AddAuthorization(options =>
             return int.TryParse(routeId, out var routeTeacherId) && userId == routeTeacherId;
         }));
 
+    options.AddPolicy("CourseOwnerOrAdmin", policy =>
+        policy.Requirements.Add(new CourseOwnerOrAdminRequirement()));
+
     options.AddPolicy("StudentSelfOrAdmin", policy =>
         policy.RequireAssertion(ctx =>
         {
@@ -76,11 +81,13 @@ builder.Services.AddAuthorization(options =>
             return int.TryParse(routeId, out var routeStudentId) && userId == routeStudentId;
         }));
 });
+builder.Services.AddScoped<IAuthorizationHandler, CourseOwnerOrAdminHandler>();
 builder.Services.AddControllers();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
