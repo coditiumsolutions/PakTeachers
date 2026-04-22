@@ -92,6 +92,8 @@ builder.Services.AddScoped<IModuleService, ModuleService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<ITrialClassService, TrialClassService>();
+builder.Services.AddScoped<IAssessmentService, AssessmentService>();
+builder.Services.AddScoped<ILiveSessionService, LiveSessionService>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
