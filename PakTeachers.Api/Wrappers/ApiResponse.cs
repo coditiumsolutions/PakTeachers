@@ -6,6 +6,7 @@ public class ApiResponse<T>
     public T? Data { get; set; }
     public string? Message { get; set; }
     public object? Errors { get; set; }
+    public IEnumerable<string>? Warnings { get; set; }
 
     public ApiResponse(T data, string? message = null)
     {

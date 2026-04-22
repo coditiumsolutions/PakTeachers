@@ -8,6 +8,8 @@ public class TeacherResponseDTO
     public string? Phone { get; set; }
     public string Cnic { get; set; } = null!;
     public string Username { get; set; } = null!;
+    // Only populated on creation. Shown once — store securely and distribute to the teacher immediately.
+    public string? PlainPassword { get; set; }
     public string TeacherType { get; set; } = null!;
     public string? Specialization { get; set; }
     public string? Qualification { get; set; }

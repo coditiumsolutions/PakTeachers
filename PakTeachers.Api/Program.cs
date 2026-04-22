@@ -52,10 +52,34 @@ builder.Services.AddAuthorization(options =>
 
             return int.TryParse(routeId, out var routeTeacherId) && userId == routeTeacherId;
         }));
+
+    options.AddPolicy("StudentSelfOrAdmin", policy =>
+        policy.RequireAssertion(ctx =>
+        {
+            var role = ctx.User.FindFirstValue(ClaimTypes.Role) ?? "";
+            if (role.Equals("super_admin", StringComparison.OrdinalIgnoreCase)
+             || role.Equals("admin", StringComparison.OrdinalIgnoreCase)
+             || role.Equals("support", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (!role.Equals("student", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var userIdClaim = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdClaim, out var userId))
+                return false;
+
+            var routeId = ctx.Resource is HttpContext http
+                ? http.GetRouteValue("id")?.ToString()
+                : null;
+
+            return int.TryParse(routeId, out var routeStudentId) && userId == routeStudentId;
+        }));
 });
 builder.Services.AddControllers();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

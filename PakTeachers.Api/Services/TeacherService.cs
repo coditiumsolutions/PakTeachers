@@ -35,8 +35,10 @@ public class TeacherService(PakTeachersDbContext db) : ITeacherService
         db.Teachers.Add(teacher);
         await db.SaveChangesAsync();
 
-        return new ApiResponse<TeacherResponseDTO>(MapToFullDTO(teacher),
-            $"Teacher created. Username: {username} | Temporary password: {plainPassword}");
+        var responseDto = MapToFullDTO(teacher);
+        responseDto.PlainPassword = plainPassword;
+        return new ApiResponse<TeacherResponseDTO>(responseDto,
+            "Teacher created. Share the credentials with the teacher — the password will not be shown again.");
     }
 
     public async Task<ApiResponse<IEnumerable<TeacherResponseDTO>>> GetTeachersFullAsync(string? type, string? status, string? search)
