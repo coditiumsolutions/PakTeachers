@@ -431,6 +431,9 @@ public partial class PakTeachersDbContext(DbContextOptions<PakTeachersDbContext>
                 .HasMaxLength(20)
                 .HasDefaultValue("pending")
                 .HasColumnName("status");
+            entity.ToTable(t => t.HasCheckConstraint(
+                "CK_TrialClasses_Status",
+                "status IN ('pending','scheduled','completed','cancelled')"));
             entity.Property(e => e.StudentId).HasColumnName("student_id");
             entity.Property(e => e.Subject)
                 .HasMaxLength(100)
