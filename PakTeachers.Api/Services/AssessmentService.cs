@@ -5,7 +5,7 @@ using PakTeachers.Api.Models;
 
 namespace PakTeachers.Api.Services;
 
-public class AssessmentService(PakTeachersDbContext db) : IAssessmentService
+public class AssessmentService(PakTeachersDbContext db, IConfigurationService config) : IAssessmentService
 {
     private static readonly HashSet<string> AdminRoles =
         new(StringComparer.OrdinalIgnoreCase) { "super_admin", "admin", "support" };
@@ -151,6 +151,9 @@ public class AssessmentService(PakTeachersDbContext db) : IAssessmentService
         if (IsTeacher(callerRole) && module.Course.TeacherId != callerId)
             return new ApiResponse<AssessmentDetailDto>("Module not found.");
 
+        if (!config.IsValid("assessment_type", dto.AssessmentType))
+            return new ApiResponse<AssessmentDetailDto>(config.InvalidMessage("assessment_type", dto.AssessmentType));
+
         if (dto.Passmarks > dto.TotalMarks)
             return new ApiResponse<AssessmentDetailDto>("Passmarks cannot exceed TotalMarks.");
 
@@ -231,6 +234,9 @@ public class AssessmentService(PakTeachersDbContext db) : IAssessmentService
                     "Cannot change TotalMarks or Passmarks on an active assessment that has submissions.");
         }
 
+        if (dto.AssessmentType is not null && !config.IsValid("assessment_type", dto.AssessmentType))
+            return new ApiResponse<AssessmentDetailDto>(config.InvalidMessage("assessment_type", dto.AssessmentType));
+
         if (dto.AssessmentType is not null) assessment.AssessmentType = dto.AssessmentType;
         if (dto.TotalMarks.HasValue) assessment.TotalMarks = dto.TotalMarks.Value;
         if (dto.Passmarks.HasValue) assessment.Passmarks = dto.Passmarks.Value;
@@ -277,6 +283,9 @@ public class AssessmentService(PakTeachersDbContext db) : IAssessmentService
 
         var newStatus = dto.Status.ToLowerInvariant();
         var current = assessment.Status.ToLowerInvariant();
+
+        if (!config.IsValid("assessment_status", newStatus))
+            return new ApiResponse<object>(config.InvalidMessage("assessment_status", newStatus));
 
         switch ((current, newStatus))
         {

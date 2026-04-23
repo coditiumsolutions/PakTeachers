@@ -96,9 +96,19 @@ builder.Services.AddScoped<IAssessmentService, AssessmentService>();
 builder.Services.AddScoped<ILiveSessionService, LiveSessionService>();
 builder.Services.AddScoped<IProgressService, ProgressService>();
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Warm up configuration cache on startup
+using (var scope = app.Services.CreateScope())
+{
+    var configSvc = scope.ServiceProvider.GetRequiredService<IConfigurationService>();
+    await configSvc.RefreshCacheAsync();
+}
 
 if (app.Environment.IsDevelopment())
 {

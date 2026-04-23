@@ -7,5 +7,6 @@ public class StudentCreateDTO
     public string GuardianName { get; set; } = null!;
     public string GuardianPhone { get; set; } = null!;
     public string GradeLevel { get; set; } = null!;
+    public string? City { get; set; }
     public string Status { get; set; } = "active";
 }

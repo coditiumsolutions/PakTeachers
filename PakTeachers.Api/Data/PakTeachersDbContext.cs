@@ -6,6 +6,8 @@ namespace PakTeachers.Api.Data;
 public partial class PakTeachersDbContext(DbContextOptions<PakTeachersDbContext> options) : DbContext(options)
 {
 
+    public virtual DbSet<Configuration> Configurations { get; set; }
+
     public virtual DbSet<Admin> Admins { get; set; }
 
     public virtual DbSet<Assessment> Assessments { get; set; }
@@ -34,6 +36,21 @@ public partial class PakTeachersDbContext(DbContextOptions<PakTeachersDbContext>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Configuration>(entity =>
+        {
+            entity.HasKey(e => e.ConfigId);
+            entity.ToTable("Configurations");
+
+            entity.HasIndex(e => e.ConfigKey, "UQ_Configurations_Key").IsUnique();
+
+            entity.Property(e => e.ConfigId).HasColumnName("config_id");
+            entity.Property(e => e.ConfigKey).HasMaxLength(50).HasColumnName("config_key");
+            entity.Property(e => e.ConfigValues).HasColumnType("nvarchar(max)").HasColumnName("config_values");
+            entity.Property(e => e.Description).HasMaxLength(255).HasColumnName("description");
+            entity.Property(e => e.IsActive).HasDefaultValue(true).HasColumnName("is_active");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+        });
+
         modelBuilder.Entity<Admin>(entity =>
         {
             entity.HasIndex(e => e.Email, "UQ_Admins_Email").IsUnique();

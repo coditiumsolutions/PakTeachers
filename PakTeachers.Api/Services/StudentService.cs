@@ -6,7 +6,7 @@ using PakTeachers.Api.Models;
 
 namespace PakTeachers.Api.Services;
 
-public class StudentService(PakTeachersDbContext db) : IStudentService
+public class StudentService(PakTeachersDbContext db, IConfigurationService config) : IStudentService
 {
     private static readonly HashSet<string> ValidStatuses =
         new(StringComparer.OrdinalIgnoreCase) { "active", "inactive", "graduated" };
@@ -15,6 +15,12 @@ public class StudentService(PakTeachersDbContext db) : IStudentService
 
     public async Task<ApiResponse<StudentResponseDTO>> CreateStudentAsync(StudentCreateDTO dto, int createdBy)
     {
+        if (dto.City is not null && !config.IsValid("city", dto.City))
+            return new ApiResponse<StudentResponseDTO>(config.InvalidMessage("city", dto.City));
+
+        if (!config.IsValid("grade_level", dto.GradeLevel))
+            return new ApiResponse<StudentResponseDTO>(config.InvalidMessage("grade_level", dto.GradeLevel));
+
         if (dto.Email is not null && await db.Students.AnyAsync(s => s.Email == dto.Email))
             return new ApiResponse<StudentResponseDTO>("A student with this email is already registered.");
 
@@ -29,6 +35,7 @@ public class StudentService(PakTeachersDbContext db) : IStudentService
             GuardianName = dto.GuardianName,
             GuardianPhone = dto.GuardianPhone,
             GradeLevel = dto.GradeLevel,
+            City = dto.City,
             Username = username,
             PasswordHash = passwordHash,
             Status = dto.Status,
@@ -94,6 +101,12 @@ public class StudentService(PakTeachersDbContext db) : IStudentService
             && await db.Students.AnyAsync(s => s.Email == dto.Email && s.StudentId != studentId))
             return new ApiResponse<StudentAdminResponseDTO>("A student with this email is already registered.");
 
+        if (dto.City is not null && !config.IsValid("city", dto.City))
+            return new ApiResponse<StudentAdminResponseDTO>(config.InvalidMessage("city", dto.City));
+
+        if (callerIsAdmin && dto.GradeLevel is not null && !config.IsValid("grade_level", dto.GradeLevel))
+            return new ApiResponse<StudentAdminResponseDTO>(config.InvalidMessage("grade_level", dto.GradeLevel));
+
         List<string> warnings = [];
 
         var newGrade = callerIsAdmin ? dto.GradeLevel : null;
@@ -116,6 +129,7 @@ public class StudentService(PakTeachersDbContext db) : IStudentService
         if (dto.GuardianName is not null) student.GuardianName = dto.GuardianName;
         if (dto.GuardianPhone is not null) student.GuardianPhone = dto.GuardianPhone;
         if (newGrade is not null) student.GradeLevel = newGrade;
+        if (dto.City is not null) student.City = dto.City;
 
         await db.SaveChangesAsync();
 

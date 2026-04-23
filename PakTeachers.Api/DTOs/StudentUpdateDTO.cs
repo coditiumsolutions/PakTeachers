@@ -8,4 +8,5 @@ public class StudentUpdateDTO
     public string? GuardianPhone { get; set; }
     // Ignored when caller role is 'student'; only Admin/Support may change this.
     public string? GradeLevel { get; set; }
+    public string? City { get; set; }
 }
