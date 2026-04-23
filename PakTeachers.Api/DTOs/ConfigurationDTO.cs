@@ -1,13 +1,13 @@
 namespace PakTeachers.Api.DTOs;
 
-// Used by public GET /api/configurations/{key} — active items only
+// Public GET active items only
 public class ConfigValueDto
 {
     public string Value { get; set; } = "";
     public string Label { get; set; } = "";
 }
 
-// Full item shape returned to admins — includes inactive flag
+// Full item shape — includes inactive flag and order
 public class ConfigValueFullDto
 {
     public string Value  { get; set; } = "";
@@ -16,7 +16,7 @@ public class ConfigValueFullDto
     public bool   Active { get; set; }
 }
 
-// Returned by public GET — active values only
+// Public GET /api/config?key= response
 public class ConfigurationDto
 {
     public int ConfigId { get; set; }
@@ -27,7 +27,7 @@ public class ConfigurationDto
     public IEnumerable<ConfigValueDto> Values { get; set; } = [];
 }
 
-// Returned by admin upsert — full state including inactive items
+// Admin grouped list item — full unfiltered state
 public class ConfigurationAdminDto
 {
     public int ConfigId { get; set; }
@@ -38,9 +38,41 @@ public class ConfigurationAdminDto
     public IEnumerable<ConfigValueFullDto> Values { get; set; } = [];
 }
 
-public class ConfigValueUpsertDto
+// POST /api/config — create a new key
+public class ConfigCreateDto
+{
+    public string ConfigKey   { get; set; } = "";
+    public string? Description { get; set; }
+    public bool IsActive      { get; set; } = true;
+    public List<ConfigValueUpsertDto> Values { get; set; } = [];
+}
+
+// PUT /api/config/{key} — update metadata only
+public class ConfigUpdateMetaDto
+{
+    public string? Description { get; set; }
+    public bool IsActive       { get; set; } = true;
+}
+
+// PATCH /api/config/{key}/append — add a value to the array
+public class ConfigValueAppendDto
+{
+    public string Value  { get; set; } = "";
+    public string Label  { get; set; } = "";
+    public int?   Order  { get; set; }
+    public bool   Active { get; set; } = true;
+}
+
+// PATCH /api/config/{key}/remove — hard-remove a value
+public class ConfigValueRemoveDto
 {
     public string Value { get; set; } = "";
-    public string Label { get; set; } = "";
-    public bool Active { get; set; } = true;
+}
+
+// Used by original upsert and internally
+public class ConfigValueUpsertDto
+{
+    public string Value  { get; set; } = "";
+    public string Label  { get; set; } = "";
+    public bool   Active { get; set; } = true;
 }
