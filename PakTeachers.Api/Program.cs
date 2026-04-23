@@ -102,7 +102,19 @@ builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((doc, _, _) =>
+    {
+        doc.Info = new()
+        {
+            Title = "PakTeachers API Explorer",
+            Version = "v1.1",
+            Description = "High-performance backend utilizing ASP.NET Core 10."
+        };
+        return Task.CompletedTask;
+    });
+});
 
 var app = builder.Build();
 
@@ -116,7 +128,10 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options.Title = "PakTeachers API Explorer";
+    });
 }
 
 if (!app.Environment.IsDevelopment())
