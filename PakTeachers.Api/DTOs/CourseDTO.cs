@@ -1,3 +1,5 @@
+using PakTeachers.Api.Attributes;
+
 namespace PakTeachers.Api.DTOs;
 
 // ── COURSE RESPONSE DTOs ──────────────────────────────────────────────────────
@@ -36,7 +38,9 @@ public class CourseCreateDto
     public int? TeacherId { get; set; }
     public string Title { get; set; } = null!;
     public string? Description { get; set; }
+    [ConfigValidation("course_type")]
     public string CourseType { get; set; } = null!;
+    [ConfigValidation("grade_level", AllowNull = true)]
     public string? GradeLevel { get; set; }
     public DateOnly? StartDate { get; set; }
     public DateOnly? EndDate { get; set; }
@@ -47,7 +51,9 @@ public class CourseUpdateDto
 {
     public string? Title { get; set; }
     public string? Description { get; set; }
+    [ConfigValidation("course_type", AllowNull = true)]
     public string? CourseType { get; set; }
+    [ConfigValidation("grade_level", AllowNull = true)]
     public string? GradeLevel { get; set; }
     public DateOnly? StartDate { get; set; }
     public DateOnly? EndDate { get; set; }

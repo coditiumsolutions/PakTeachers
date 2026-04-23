@@ -1,3 +1,5 @@
+using PakTeachers.Api.Attributes;
+
 namespace PakTeachers.Api.DTOs;
 
 // ── ENROLLMENT RESPONSE DTOs ──────────────────────────────────────────────────
@@ -27,10 +29,12 @@ public class EnrollmentCreateDto
     public int CourseId { get; set; }
     public decimal Amount { get; set; }
     public string Currency { get; set; } = "PKR";
+    [ConfigValidation("payment_method")]
     public string Method { get; set; } = null!;
 }
 
 public class EnrollmentStatusUpdateDto
 {
+    [ConfigValidation("enrollment_status")]
     public string Status { get; set; } = null!;
 }

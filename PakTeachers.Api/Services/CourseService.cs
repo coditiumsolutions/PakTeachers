@@ -7,9 +7,6 @@ namespace PakTeachers.Api.Services;
 
 public class CourseService(PakTeachersDbContext db) : ICourseService
 {
-    private static readonly HashSet<string> ValidTypes =
-        new(StringComparer.OrdinalIgnoreCase) { "academic", "quran" };
-
     private static readonly HashSet<string> ValidStatuses =
         new(StringComparer.OrdinalIgnoreCase) { "draft", "active", "completed", "archived" };
 
@@ -91,10 +88,6 @@ public class CourseService(PakTeachersDbContext db) : ICourseService
     public async Task<ApiResponse<CourseAdminDto>> CreateCourseAsync(
         CourseCreateDto dto, string callerRole, int callerId)
     {
-        if (!ValidTypes.Contains(dto.CourseType))
-            return new ApiResponse<CourseAdminDto>(
-                $"Invalid course_type '{dto.CourseType}'. Valid values: academic, quran.");
-
         int resolvedTeacherId;
         if (IsAdmin(callerRole))
         {
@@ -153,10 +146,6 @@ public class CourseService(PakTeachersDbContext db) : ICourseService
             if (course.Enrollments.Count > 0)
                 return new ApiResponse<object>(
                     "Cannot change course_type when enrollments exist.");
-
-            if (!ValidTypes.Contains(dto.CourseType))
-                return new ApiResponse<object>(
-                    $"Invalid course_type '{dto.CourseType}'. Valid values: academic, quran.");
 
             course.CourseType = dto.CourseType.ToLower();
         }

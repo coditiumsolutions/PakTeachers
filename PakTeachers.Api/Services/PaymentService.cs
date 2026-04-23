@@ -6,7 +6,7 @@ using PakTeachers.Api.Wrappers;
 
 namespace PakTeachers.Api.Services;
 
-public class PaymentService(PakTeachersDbContext db, IConfigurationService config) : IPaymentService
+public class PaymentService(PakTeachersDbContext db) : IPaymentService
 {
     private static readonly HashSet<string> AdminRoles =
         new(StringComparer.OrdinalIgnoreCase) { "super_admin", "admin", "support" };
@@ -130,9 +130,6 @@ public class PaymentService(PakTeachersDbContext db, IConfigurationService confi
         if (dto.Amount <= 0)
             return new ApiResponse<PaymentDetailDto>("Amount must be greater than 0.");
 
-        if (!config.IsValid("payment_method", dto.Method))
-            return new ApiResponse<PaymentDetailDto>(config.InvalidMessage("payment_method", dto.Method));
-
         var enrollment = await db.Enrollments.AsNoTracking()
             .Include(e => e.Course)
             .FirstOrDefaultAsync(e => e.EnrollmentId == dto.EnrollmentId);
@@ -203,12 +200,6 @@ public class PaymentService(PakTeachersDbContext db, IConfigurationService confi
 
         var current = payment.Status;
         var next = dto.Status;
-
-        if (!config.IsValid("payment_status", next))
-        {
-            await tx.RollbackAsync();
-            return new ApiResponse<PaymentListItemDto>(config.InvalidMessage("payment_status", next));
-        }
 
         var allowed = IsValidTransition(current, next, callerRole);
         if (!allowed)

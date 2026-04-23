@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PakTeachers.Api.Authorization;
 using PakTeachers.Api.Data;
+using PakTeachers.Api.Filters;
 using PakTeachers.Api.Services;
 using Scalar.AspNetCore;
 
@@ -82,7 +83,9 @@ builder.Services.AddAuthorization(options =>
         }));
 });
 builder.Services.AddScoped<IAuthorizationHandler, CourseOwnerOrAdminHandler>();
-builder.Services.AddControllers();
+builder.Services.AddScoped<ConfigValidationFilter>();
+builder.Services.AddControllers(options =>
+    options.Filters.AddService<ConfigValidationFilter>());
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
 builder.Services.AddScoped<IStudentService, StudentService>();

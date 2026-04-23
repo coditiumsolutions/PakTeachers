@@ -1,3 +1,5 @@
+using PakTeachers.Api.Attributes;
+
 namespace PakTeachers.Api.DTOs;
 
 public class PaymentStudentInfoDto
@@ -51,12 +53,14 @@ public class PaymentCreateDto
     public int EnrollmentId { get; set; }
     public decimal Amount { get; set; }
     public string Currency { get; set; } = "PKR";
+    [ConfigValidation("payment_method")]
     public string Method { get; set; } = "";
     public string? Notes { get; set; }
 }
 
 public class PaymentStatusPatchDto
 {
+    [ConfigValidation("payment_status")]
     public string Status { get; set; } = "";
     public string? Notes { get; set; }
 }

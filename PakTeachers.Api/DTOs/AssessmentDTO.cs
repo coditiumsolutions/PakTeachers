@@ -1,3 +1,5 @@
+using PakTeachers.Api.Attributes;
+
 namespace PakTeachers.Api.DTOs;
 
 public class AssessmentSummaryDto
@@ -30,6 +32,7 @@ public class MySubmissionDto
 
 public class AssessmentCreateDto
 {
+    [ConfigValidation("assessment_type")]
     public string AssessmentType { get; set; } = null!;
     public int TotalMarks { get; set; }
     public int Passmarks { get; set; }
@@ -39,6 +42,7 @@ public class AssessmentCreateDto
 
 public class AssessmentUpdateDto
 {
+    [ConfigValidation("assessment_type", AllowNull = true)]
     public string? AssessmentType { get; set; }
     public int? TotalMarks { get; set; }
     public int? Passmarks { get; set; }
@@ -48,5 +52,6 @@ public class AssessmentUpdateDto
 
 public class AssessmentStatusUpdateDto
 {
+    [ConfigValidation("assessment_status")]
     public string Status { get; set; } = null!;
 }

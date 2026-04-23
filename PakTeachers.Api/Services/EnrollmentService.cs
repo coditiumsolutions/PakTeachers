@@ -5,7 +5,7 @@ using PakTeachers.Api.Models;
 
 namespace PakTeachers.Api.Services;
 
-public class EnrollmentService(PakTeachersDbContext db, IConfigurationService config) : IEnrollmentService
+public class EnrollmentService(PakTeachersDbContext db) : IEnrollmentService
 {
     private static readonly HashSet<string> AdminRoles =
         new(StringComparer.OrdinalIgnoreCase) { "super_admin", "admin", "support" };
@@ -135,9 +135,6 @@ public class EnrollmentService(PakTeachersDbContext db, IConfigurationService co
             return new ApiResponse<EnrollmentDetailDto>(
                 $"Student grade level '{student.GradeLevel}' does not match course grade level '{course.GradeLevel}'.");
 
-        if (!config.IsValid("payment_method", dto.Method))
-            return new ApiResponse<EnrollmentDetailDto>(config.InvalidMessage("payment_method", dto.Method));
-
         // Duplicate active enrollment check
         bool duplicate = await db.Enrollments.AsNoTracking()
             .AnyAsync(e => e.StudentId == dto.StudentId && e.CourseId == dto.CourseId && e.Status == "active");
@@ -218,9 +215,6 @@ public class EnrollmentService(PakTeachersDbContext db, IConfigurationService co
             return new ApiResponse<object>("Enrollment not found.");
 
         var newStatus = dto.Status.ToLowerInvariant();
-
-        if (!config.IsValid("enrollment_status", newStatus))
-            return new ApiResponse<object>(config.InvalidMessage("enrollment_status", newStatus));
 
         if (enrollment.Status != "active")
             return new ApiResponse<object>($"Cannot change status from '{enrollment.Status}'.");
