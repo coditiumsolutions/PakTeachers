@@ -94,6 +94,8 @@ builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<ITrialClassService, TrialClassService>();
 builder.Services.AddScoped<IAssessmentService, AssessmentService>();
 builder.Services.AddScoped<ILiveSessionService, LiveSessionService>();
+builder.Services.AddScoped<IProgressService, ProgressService>();
+builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
