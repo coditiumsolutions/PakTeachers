@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { MainLayout } from './layouts/MainLayout'
+import { ScrollToTop } from './components/ScrollToTop'
 import { HomePage } from './pages/HomePage'
 import { SchoolPage } from './pages/SchoolPage'
 import { CoursesPage } from './pages/CoursesPage'
@@ -11,6 +12,7 @@ import { PlaceholderPage } from './pages/PlaceholderPage'
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />

@@ -80,7 +80,6 @@ export function Footer() {
           <p className="text-sm text-slate-500">
             © {new Date().getFullYear()} PakTeachers. All rights reserved.
           </p>
-          <p className="text-xs text-slate-600">Built with React & Tailwind CSS</p>
         </div>
       </div>
     </footer>
