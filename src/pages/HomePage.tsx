@@ -2,6 +2,18 @@ import { Link } from 'react-router-dom'
 import { HeroSlider } from '../components/HeroSlider'
 import { FeatureSection } from '../components/FeatureSection'
 
+const STYLES = `
+  @keyframes hpFadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hp-fade { animation: hpFadeUp 0.5s ease both; }
+  .hp-fade-1 { animation-delay: 0.05s; }
+  .hp-fade-2 { animation-delay: 0.13s; }
+  .hp-fade-3 { animation-delay: 0.21s; }
+  .hp-fade-4 { animation-delay: 0.30s; }
+`
+
 const stats = [
   { value: '10,000+', label: 'Students Enrolled' },
   { value: '100+', label: 'Qualified Teachers' },
@@ -12,6 +24,7 @@ const stats = [
 export function HomePage() {
   return (
     <>
+      <style>{STYLES}</style>
       <HeroSlider />
 
       {/* Stats bar */}
@@ -29,11 +42,12 @@ export function HomePage() {
       <FeatureSection />
 
       {/* About */}
-      <section id="about" className="scroll-mt-(--nav-stack-height) border-t border-slate-200 bg-slate-100 py-16 sm:py-20">
+      <section id="about" className="scroll-mt-(--nav-stack-height) border-t border-slate-200 bg-slate-50 py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="grid gap-10 lg:grid-cols-2 lg:gap-16 lg:items-center">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">About PakTeachers</h2>
+              <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600">About Us</p>
+              <h2 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">About PakTeachers</h2>
               <p className="mt-4 text-slate-600 leading-relaxed">
                 PakTeachers is a Lahore-based virtual schooling platform connecting Pakistani students with certified, experienced teachers for live online classes. We cover the full school curriculum — from primary to higher secondary — as well as dedicated Quran teaching programmes.
               </p>
@@ -65,8 +79,9 @@ export function HomePage() {
       {/* How it works */}
       <section id="how-it-works" className="scroll-mt-(--nav-stack-height) border-t border-slate-200 bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">How it works</h2>
+          <div className="mx-auto max-w-xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600">The Process</p>
+            <h2 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">How it works</h2>
             <p className="mt-3 text-slate-600">Getting started takes less than 5 minutes.</p>
           </div>
           <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -75,8 +90,8 @@ export function HomePage() {
               ['2', 'Book a trial', 'Attend a single paid trial class from as low as Rs. 400.'],
               ['3', 'Register & pay', 'Enrol and get instant access to your LMS dashboard.'],
               ['4', 'Join live class', 'Your teacher sends the Zoom/Meet link — learning starts!'],
-            ].map(([n, title, desc]) => (
-              <div key={n} className="flex flex-col items-center text-center">
+            ].map(([n, title, desc], i) => (
+              <div key={n} className={`hp-fade hp-fade-${i + 1} flex flex-col items-center text-center`}>
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-950 text-lg font-bold text-white">
                   {n}
                 </div>
