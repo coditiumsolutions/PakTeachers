@@ -14,18 +14,19 @@ import { alertSessionExpired, alertAccessDenied, alertLoggedOut } from '../lib/a
 
 export type NormalizedRole = 'student' | 'teacher' | 'admin' | null
 
+// eslint-disable-next-line react-refresh/only-export-components
+export function roleToRoute(role: NormalizedRole): string {
+  if (role === 'student') return '/student-dashboard'
+  if (role === 'teacher') return '/teacher-dashboard'
+  return '/admin-dashboard'
+}
+
 function normalizeRole(raw: string): NormalizedRole {
   const r = raw.toLowerCase()
   if (r === 'student') return 'student'
   if (r === 'teacher') return 'teacher'
   if (r === 'super_admin' || r === 'support' || r === 'admin') return 'admin'
   return null
-}
-
-export function roleToRoute(role: NormalizedRole): string {
-  if (role === 'student') return '/student-dashboard'
-  if (role === 'teacher') return '/teacher-dashboard'
-  return '/admin-dashboard'
 }
 
 // ── Context shape ──────────────────────────────────────────────────────────────
@@ -52,7 +53,7 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const [user, setUser] = useState<AuthUser | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem('pt_token'))
   const unauthorizedBound = useRef(false)
 
   const clearAuth = useCallback(() => {
@@ -63,10 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Hydrate from token in localStorage on mount
   useEffect(() => {
     const token = localStorage.getItem('pt_token')
-    if (!token) {
-      setIsLoading(false)
-      return
-    }
+    if (!token) return
 
     authApi.me()
       .then(({ data }) => {
@@ -155,6 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 // ── Hook ───────────────────────────────────────────────────────────────────────
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>')
