@@ -1,11 +1,21 @@
 ## Commands
 
+### Frontend (project root)
 ```bash
 npm run dev       # Start dev server (Vite HMR)
 npm run build     # Type-check + production build (tsc -b && vite build)
 npm run lint      # ESLint across all TS/TSX files
 npm run preview   # Preview the production build locally
 ```
+
+### Backend (PakTeacher.Api folder)
+```bash
+cd PakTeacher.Api && dotnet run   # Start the .NET API server
+```
+
+### Access URLs
+- **Frontend Website:** http://localhost:5173
+- **Backend API Documentation:** http://localhost:5065/scalar/
 
 No test suite is configured yet.
 
