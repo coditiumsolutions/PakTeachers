@@ -42,15 +42,20 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// On 401 — clear local auth state and redirect to /lms
+// On 401/403 — dispatch custom events so AuthContext can react without a circular dep
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    const status = err.response?.status
+    const message: string | null = err.response?.data?.message ?? null
+
+    if (status === 401) {
       localStorage.removeItem('pt_token')
-      // Dispatch a custom event so AuthContext can react without a circular dep
-      window.dispatchEvent(new CustomEvent('pt:unauthorized'))
+      window.dispatchEvent(new CustomEvent('pt:unauthorized', { detail: { message } }))
+    } else if (status === 403) {
+      window.dispatchEvent(new CustomEvent('pt:forbidden', { detail: { message } }))
     }
+
     return Promise.reject(err)
   }
 )

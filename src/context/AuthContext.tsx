@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authApi, type UserProfileDTO } from '../lib/api'
+import { alertSessionExpired, alertAccessDenied, alertLoggedOut } from '../lib/alertService'
 
 // ── Role helpers ───────────────────────────────────────────────────────────────
 
@@ -85,17 +86,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setIsLoading(false))
   }, [clearAuth])
 
-  // Handle 401s from the Axios interceptor
+  // Handle 401/403 events from the Axios interceptor
   useEffect(() => {
     if (unauthorizedBound.current) return
     unauthorizedBound.current = true
 
-    const handle = () => {
+    const handle401 = (e: Event) => {
+      const message = (e as CustomEvent<{ message: string | null }>).detail?.message
       clearAuth()
-      navigate('/lms', { replace: true })
+      void alertSessionExpired(message).then(() => navigate('/lms', { replace: true }))
     }
-    window.addEventListener('pt:unauthorized', handle)
-    return () => window.removeEventListener('pt:unauthorized', handle)
+
+    const handle403 = (e: Event) => {
+      const message = (e as CustomEvent<{ message: string | null }>).detail?.message
+      setUser((currentUser) => {
+        const dest = currentUser ? roleToRoute(currentUser.role) : '/lms'
+        navigate(dest, { replace: true })
+        void alertAccessDenied(message)
+        return currentUser
+      })
+    }
+
+    window.addEventListener('pt:unauthorized', handle401)
+    window.addEventListener('pt:forbidden', handle403)
+    return () => {
+      window.removeEventListener('pt:unauthorized', handle401)
+      window.removeEventListener('pt:forbidden', handle403)
+    }
   }, [clearAuth, navigate])
 
   const login = useCallback(async (username: string, password: string) => {
@@ -125,6 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // best-effort — clear locally regardless
     }
     clearAuth()
+    await alertLoggedOut()
     navigate('/lms', { replace: true })
   }, [clearAuth, navigate])
 
