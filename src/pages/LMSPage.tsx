@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const ANIM_STYLES = `
   @keyframes lmsFadeUp {
@@ -37,55 +37,28 @@ const ANIM_STYLES = `
     box-shadow: 0 4px 16px rgba(79,70,229,0.10);
     transform: translateY(-2px);
   }
-
-  .lms-user-tab {
-    position: relative;
-    transition: color 0.2s, background 0.2s, border-color 0.2s;
-  }
-  .lms-user-tab.active::after {
-    content: '';
-    position: absolute;
-    bottom: -1px; left: 50%; transform: translateX(-50%);
-    width: 32px; height: 2px;
-    border-radius: 2px;
-    background: #4f46e5;
-  }
 `
 
-type Role = 'student' | 'teacher' | 'admin'
-
-const roleTabs: { id: Role; icon: string; label: string }[] = [
-  { id: 'student', icon: '👨‍🎓', label: 'Student' },
-  { id: 'teacher', icon: '👨‍🏫', label: 'Teacher' },
-  { id: 'admin', icon: '🔐', label: 'Admin' },
-]
-
-const roleRoutes: Record<Role, string> = {
-  student: '/student-dashboard',
-  teacher: '/teacher-dashboard',
-  admin: '/admin-dashboard',
-}
-
 export function LMSPage() {
-  const navigate = useNavigate()
-  const [role, setRole] = useState<Role | null>(null)
-  const [email, setEmail] = useState('')
+  const { login } = useAuth()
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!role) {
-      setError('Please select a role to continue.')
-      return
+    setError('')
+    setIsSubmitting(true)
+    try {
+      await login(username, password)
+      // navigate() is called inside login() — nothing else needed here
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred.'
+      setError(msg)
+    } finally {
+      setIsSubmitting(false)
     }
-    if (!email || !password) {
-      setError('Please fill in all fields to continue.')
-      return
-    }
-    // In production this would validate JWT from .NET 10 backend.
-    // The role claim from the token determines the redirect target.
-    navigate(roleRoutes[role])
   }
 
   return (
@@ -180,95 +153,70 @@ export function LMSPage() {
         <div className="mx-auto max-w-md px-4 sm:px-6">
           <div className="mb-8 text-center">
             <h2 className="text-2xl font-bold text-slate-900">Sign in to PTLMS</h2>
-            <p className="mt-2 text-sm text-slate-500">Select your role, then enter your credentials.</p>
+            <p className="mt-2 text-sm text-slate-500">
+              Enter your credentials to access your dashboard.
+            </p>
           </div>
 
-          {/* Role tabs */}
-          <div className="mb-6 flex gap-3">
-            {roleTabs.map(({ id, icon, label }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => { setRole(id); setError('') }}
-                className={`lms-user-tab flex flex-1 flex-col items-center gap-1.5 rounded-xl border py-4 text-sm font-medium transition ${
-                  role === id
-                    ? 'active border-indigo-400 bg-indigo-50 text-indigo-700 shadow-sm'
-                    : 'border-slate-200 bg-white text-slate-500 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600'
-                }`}
-              >
-                <span className="text-2xl leading-none">{icon}</span>
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* Login form */}
-          {role ? (
-            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
-              <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 text-lg">
-                  {roleTabs.find((t) => t.id === role)?.icon}
-                </div>
-                <div>
-                  <p className="font-semibold text-slate-900">
-                    {role.charAt(0).toUpperCase() + role.slice(1)} Login
-                  </p>
-                  <p className="text-xs text-slate-500">Enter your portal credentials</p>
-                </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 text-lg">
+                🖥️
               </div>
-
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <label htmlFor="lms-email" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Email Address
-                  </label>
-                  <input
-                    id="lms-email"
-                    type="email"
-                    required
-                    placeholder="you@school.edu.pk"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lms-password" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Password
-                  </label>
-                  <input
-                    id="lms-password"
-                    type="password"
-                    required
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                  />
-                </div>
-
-                {error && (
-                  <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</p>
-                )}
-
-                <button
-                  type="submit"
-                  className="w-full rounded-lg bg-indigo-600 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 active:scale-[0.99]"
-                >
-                  Sign In
-                </button>
-              </form>
-
-              <div className="mt-5 space-y-1 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-500">
-                <p>📧 Credentials are issued by the administration.</p>
-                <p>📞 Call +92 123 4567890 for login support.</p>
+              <div>
+                <p className="font-semibold text-slate-900">Portal Login</p>
+                <p className="text-xs text-slate-500">Access is role-based — you'll be redirected automatically</p>
               </div>
             </div>
-          ) : (
-            <p className="mt-2 text-center text-sm text-slate-400">
-              Select a role above to continue.
-            </p>
-          )}
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label htmlFor="lms-username" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Username
+                </label>
+                <input
+                  id="lms-username"
+                  type="text"
+                  required
+                  placeholder="your.username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                />
+              </div>
+              <div>
+                <label htmlFor="lms-password" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Password
+                </label>
+                <input
+                  id="lms-password"
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                />
+              </div>
+
+              {error && (
+                <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full rounded-lg bg-indigo-600 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Signing in…' : 'Sign In'}
+              </button>
+            </form>
+
+            <div className="mt-5 space-y-1 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-500">
+              <p>📧 Credentials are issued by the administration.</p>
+              <p>📞 Call +92 123 4567890 for login support.</p>
+            </div>
+          </div>
         </div>
       </section>
 

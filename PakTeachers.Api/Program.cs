@@ -101,6 +101,15 @@ builder.Services.AddScoped<IProgressService, ProgressService>();
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddMemoryCache();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendDev", policy =>
+        policy.WithOrigins("http://localhost:5173", "http://localhost:4173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials());
+});
 builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
 builder.Services.AddOpenApi(options =>
 {
@@ -137,6 +146,7 @@ if (app.Environment.IsDevelopment())
 if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 
+app.UseCors("FrontendDev");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

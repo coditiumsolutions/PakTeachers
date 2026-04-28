@@ -63,7 +63,8 @@ public class AuthService(PakTeachersDbContext db, IConfiguration config) : IAuth
     public async Task<ApiResponse<UserProfileDTO>> GetUserProfileAsync(int userId, string role)
     {
         bool isAdmin = role.Equals("super_admin", StringComparison.OrdinalIgnoreCase)
-                    || role.Equals("admin", StringComparison.OrdinalIgnoreCase);
+                    || role.Equals("admin", StringComparison.OrdinalIgnoreCase)
+                    || role.Equals("support", StringComparison.OrdinalIgnoreCase);
 
         if (isAdmin)
         {
@@ -110,7 +111,8 @@ public class AuthService(PakTeachersDbContext db, IConfiguration config) : IAuth
     public async Task<ApiResponse<object>> ChangePasswordAsync(int userId, string role, string currentPassword, string newPassword)
     {
         bool isAdmin = role.Equals("super_admin", StringComparison.OrdinalIgnoreCase)
-                    || role.Equals("admin", StringComparison.OrdinalIgnoreCase);
+                    || role.Equals("admin", StringComparison.OrdinalIgnoreCase)
+                    || role.Equals("support", StringComparison.OrdinalIgnoreCase);
 
         if (isAdmin)
         {

@@ -1,4 +1,5 @@
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const ANIM_STYLES = `
   @keyframes lmsFadeUp {
@@ -59,11 +60,16 @@ const ANIM_STYLES = `
 `
 
 export function LMSLayout() {
-  const navigate = useNavigate()
+  const { user, logout } = useAuth()
 
-  const handleLogout = () => {
-    navigate('/lms')
-  }
+  const roleLabel = user?.role
+    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+    : ''
+
+  const dashboardRoute =
+    user?.role === 'student' ? '/student-dashboard'
+    : user?.role === 'teacher' ? '/teacher-dashboard'
+    : '/admin-dashboard'
 
   return (
     <>
@@ -77,28 +83,42 @@ export function LMSLayout() {
               PTLMS
             </Link>
             <nav className="flex gap-1">
-              {[
-                { to: '/student-dashboard', label: 'Dashboard' },
-                { to: '/lms/courses', label: 'Courses' },
-                { to: '/lms/profile', label: 'Profile' },
-              ].map(({ to, label }) => (
-                <Link
-                  key={label}
-                  to={to}
-                  className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-                >
-                  {label}
-                </Link>
-              ))}
+              <Link
+                to={dashboardRoute}
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/lms/courses"
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+              >
+                Courses
+              </Link>
+              <Link
+                to="/lms/profile"
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+              >
+                Profile
+              </Link>
             </nav>
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-          >
-            Logout
-          </button>
+
+          <div className="flex items-center gap-3">
+            {user && (
+              <div className="hidden flex-col items-end sm:flex">
+                <span className="text-xs font-medium text-slate-700">{user.fullName || user.username}</span>
+                <span className="text-xs text-slate-400">{roleLabel} Session</span>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => void logout()}
+              className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
 
