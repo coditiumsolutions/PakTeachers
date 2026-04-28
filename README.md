@@ -1,73 +1,90 @@
-# React + TypeScript + Vite
+# PakTeachers - Virtual Education Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Overview
 
-Currently, two official plugins are available:
+**PakTeachers** is a virtual schooling platform connecting Pakistani students with certified, experienced teachers for live online classes. The website is a multi-page React app (not a single-page landing) covering academic schooling (Grades 1–12), Quran teaching, trial classes using an LMS.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Technology Stack
 
-## React Compiler
+| Category | Technology |
+|----------|------------|
+| Framework | React 19 |
+| Language | TypeScript 5.9 |
+| Build Tool | Vite 8 (uses OXC transformer — **ASCII-only in JSX strings**) |
+| Styling | Tailwind CSS v4 (`@import "tailwindcss"` in `src/index.css`, `@tailwindcss/vite` plugin — no `tailwind.config.js`) |
+| Routing | React Router v7 |
+| HTTP Client | Axios 1.x (with request/response interceptors for auth) |
+| Auth | JWT Bearer stored in `localStorage` (`pt_token`) |
+| Alerts | SweetAlert2 11.x (centralized in `src/lib/alertService.ts`) |
+| Linting | ESLint 9.x with TypeScript ESLint |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Quickstart
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Access URLs
+- **Frontend Website:** http://localhost:5173
+- **Backend API Documentation:** http://localhost:5065/scalar/
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Frontend (Project Root)
+```bash
+npm run dev       # Start dev server (Vite HMR)
+npm run build     # Type-check + production build (tsc -b && vite build)
+npm run lint      # ESLint across all TS/TSX files
+npm run preview   # Preview the production build locally
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Backend (PakTeacher.Api folder)
+```bash
+cd PakTeacher.Api && dotnet run   # Start the .NET API server
 ```
+
+## Database
+
+The database is SQL Server, managed by EF Core migrations in the backend project. See the [Backend README](PakTeachers.Api/README.md) for the full setup guide including migrations.
+
+## Environment Variables
+
+- See [.env.example](.env.example) for frontend env vars.
+
+Copy `.env.example` to `.env.local` and fill in values before running the dev server:
+
+```bash
+cp .env.example .env.local
+```
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_API_BASE_URL` | Base URL for the backend API (default: `http://localhost:5065`) |
+
+> Note: `.env.local` is git-ignored. Never commit real values.
+
+#### Configure Secrets
+
+Connection string and JWT settings are stored in .NET User Secrets (never in `appsettings.json`):
+
+```bash
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=[COMPUTER]\SQLEXPRESS;Database=PakTeachers;Trusted_Connection=True;TrustServerCertificate=True;"
+dotnet user-secrets set "Jwt:Key"      "<your-256-bit-secret>"
+dotnet user-secrets set "Jwt:Issuer"   "PakTeachersApi"
+dotnet user-secrets set "Jwt:Audience" "PakTeachersClient"
+```
+
+Or run the included helper script (PowerShell):
+
+```powershell
+.\setup-secrets.ps1
+```
+
+- See [Backend Readme](PakTeachers.Api\README.md) for Details.
+
+
+---
+
+## Developed by
+
+- **Rayder-23**
+- **Coditium Solutions**
+
+---

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**PakTeachers** is a Lahore-based virtual schooling platform connecting Pakistani students with certified, experienced teachers for live online classes. The website is a multi-page React app (not a single-page landing) covering academic schooling (Grades 1–12), Quran teaching, trial classes using an LMS.
+**PakTeachers** is a virtual schooling platform connecting Pakistani students with certified, experienced teachers for live online classes. The website is a multi-page React app (not a single-page landing) covering academic schooling (Grades 1–12), Quran teaching, trial classes using an LMS.
 
 ## Technology Stack
 

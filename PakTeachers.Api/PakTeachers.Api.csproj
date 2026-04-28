@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>b8e7d99f-baf4-4144-bc98-371fafa23560</UserSecretsId>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Company>PakTeachers</Company>
     <Description>Next-generation Virtual Educational Management System (VEMS) Backend.</Description>
     <Copyright>Copyright © 2026 PakTeachers</Copyright>

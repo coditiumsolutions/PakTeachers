@@ -149,4 +149,18 @@ Scalar UI: `https://localhost:5065/scalar/v1`
 - Auto-Validation Pipeline replacing all manual vocabulary checks
 - Scalar API documentation with XML summary annotations
 
-**Next Phase: Frontend Integration**
+**Frontend Integration — In Progress**
+
+- JWT auth system connected (login, profile hydration, logout)
+- Role-based route protection on React side (`student`, `teacher`, `admin`/`super_admin`/`support`)
+- Axios interceptor handles 401 (session expiry) and 403 (forbidden) with SweetAlert2 modals
+- Remaining: course delivery UI, live session scheduling, student progress views
+
+---
+
+## Developed by
+
+- **Rayder-23**
+- **Coditium Solutions**
+
+---
