@@ -8,13 +8,42 @@ namespace PakTeachers.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(IAuthService authService, IWebHostEnvironment env) : ControllerBase
 {
+    private static readonly CookieOptions TokenCookieOptions = new()
+    {
+        HttpOnly = true,
+        SameSite = SameSiteMode.Strict,
+        Path = "/",
+        MaxAge = TimeSpan.FromDays(7),
+    };
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDTO dto)
     {
         var result = await authService.LoginAsync(dto);
-        return result.Success ? Ok(result) : Unauthorized(result);
+        if (!result.Success || result.Data is null)
+            return Unauthorized(new ApiResponse<object>(result.Message ?? "Login failed."));
+
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = TokenCookieOptions.HttpOnly,
+            SameSite = TokenCookieOptions.SameSite,
+            Path = TokenCookieOptions.Path,
+            MaxAge = TokenCookieOptions.MaxAge,
+            // Secure only in non-development so local HTTP still works during dev
+            Secure = !env.IsDevelopment(),
+        };
+
+        Response.Cookies.Append("token", result.Data.Token, cookieOptions);
+
+        var publicResponse = new ApiResponse<LoginResponseDTO>(new LoginResponseDTO
+        {
+            Username = result.Data.Username,
+            Role = result.Data.Role,
+        }, "Login successful.");
+
+        return Ok(publicResponse);
     }
 
     [Authorize]
@@ -43,6 +72,17 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var result = await authService.LogoutAsync(userId);
+
+        // Expire the auth cookie immediately
+        Response.Cookies.Append("token", "", new CookieOptions
+        {
+            HttpOnly = true,
+            SameSite = SameSiteMode.Strict,
+            Path = "/",
+            Expires = DateTimeOffset.UnixEpoch,
+            Secure = !env.IsDevelopment(),
+        });
+
         return Ok(result);
     }
 }

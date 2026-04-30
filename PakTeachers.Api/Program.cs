@@ -29,6 +29,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
         };
+
+        // Extract JWT from the HttpOnly cookie instead of the Authorization header
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = ctx =>
+            {
+                var cookie = ctx.Request.Cookies["token"];
+                if (!string.IsNullOrEmpty(cookie))
+                    ctx.Token = cookie;
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization(options =>
@@ -119,7 +131,7 @@ builder.Services.AddOpenApi(options =>
         {
             Title = "PakTeachers API Explorer",
             Version = "v1.1",
-            Description = "High-performance backend utilizing ASP.NET Core 10."
+            Description = "High-performance backend utilizing ASP.NET Core 10. Auth uses an HttpOnly cookie named 'token' — call POST /api/auth/login first, then the browser sends the cookie automatically on all subsequent requests."
         };
         return Task.CompletedTask;
     });

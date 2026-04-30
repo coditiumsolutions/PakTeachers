@@ -53,19 +53,17 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const [user, setUser] = useState<AuthUser | null>(null)
-  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem('pt_token'))
+  // Always start loading — the HttpOnly cookie is invisible to JS so we must
+  // always probe /me to know whether a valid session exists.
+  const [isLoading, setIsLoading] = useState(true)
   const unauthorizedBound = useRef(false)
 
   const clearAuth = useCallback(() => {
-    localStorage.removeItem('pt_token')
     setUser(null)
   }, [])
 
-  // Hydrate from token in localStorage on mount
+  // Hydrate session on mount by checking the HttpOnly cookie via /me
   useEffect(() => {
-    const token = localStorage.getItem('pt_token')
-    if (!token) return
-
     authApi.me()
       .then(({ data }) => {
         if (data.success && data.data) {
@@ -80,7 +78,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           clearAuth()
         }
       })
-      .catch(() => clearAuth())
+      .catch(() => {
+        // 401 is expected for unauthenticated visitors — the interceptor fires
+        // pt:unauthorized only for previously-authenticated sessions that expired.
+        // During the initial probe we suppress the alert by catching here first.
+        clearAuth()
+      })
       .finally(() => setIsLoading(false))
   }, [clearAuth])
 
@@ -120,10 +123,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error(data.message ?? 'Login failed')
     }
 
-    const auth = data.data
-    localStorage.setItem('pt_token', auth.token)
-
-    // Fetch full profile to populate AuthUser
+    // The browser stores the HttpOnly cookie automatically from the Set-Cookie header.
+    // Call /me to get the full profile (id + fullName) needed to populate AuthUser.
     const { data: profileRes } = await authApi.me()
     if (profileRes.success && profileRes.data) {
       const p: UserProfileDTO = profileRes.data
@@ -135,9 +136,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
+      // Backend expires the cookie via Set-Cookie with MaxAge=0
       await authApi.logout()
     } catch {
-      // best-effort — clear locally regardless
+      // best-effort — clear client state regardless
     }
     clearAuth()
     await alertLoggedOut()
