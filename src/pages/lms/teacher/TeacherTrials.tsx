@@ -76,20 +76,24 @@ export function TeacherTrials() {
   }, [teacherId])
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-      <div className="lms-fade-up lms-fade-up-1 mb-8">
-        <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-          Teacher Portal
-        </span>
-        <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">Trial Classes</h1>
-        <p className="mt-1 text-slate-500">All trial requests assigned to you. Student details are shown for coordination purposes.</p>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="lms-fade-up lms-fade-up-1 mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">Trial Classes</h1>
+          <p className="mt-0.5 text-sm text-slate-500">All trial requests assigned to you. Student details are shown for coordination purposes.</p>
+        </div>
+        {!loading && trials && (
+          <span className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+            {trials.length} trial{trials.length !== 1 ? 's' : ''}
+          </span>
+        )}
       </div>
 
       <div className="lms-fade-up lms-fade-up-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <tr className="border-b border-indigo-900 bg-indigo-950 text-left text-xs font-semibold uppercase tracking-wider text-indigo-200">
                 <th className="px-4 py-3">Student</th>
                 <th className="px-4 py-3">Subject</th>
                 <th className="px-4 py-3">Scheduled</th>

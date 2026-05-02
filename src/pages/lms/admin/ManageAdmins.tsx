@@ -348,13 +348,17 @@ export function ManageAdmins() {
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-      <div className="lms-fade-up lms-fade-up-1 mb-8">
-        <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-          Admin View
-        </span>
-        <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">User Management</h1>
-        <p className="mt-1 text-slate-500">Manage admin accounts and permissions.</p>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="lms-fade-up lms-fade-up-1 mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">User Management</h1>
+          <p className="mt-0.5 text-sm text-slate-500">Manage admin accounts and permissions.</p>
+        </div>
+        {!loading && (
+          <span className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+            {totalCount} admin{totalCount !== 1 ? 's' : ''}
+          </span>
+        )}
       </div>
 
       {/* Toolbar */}
@@ -406,12 +410,12 @@ export function ManageAdmins() {
           <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-left">
-                  <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Name</th>
-                  <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Username</th>
-                  <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Role</th>
-                  <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
-                  <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Created</th>
+                <tr className="border-b border-indigo-900 bg-indigo-950 text-left text-xs font-semibold uppercase tracking-wider text-indigo-200">
+                  <th className="px-5 py-3">Name</th>
+                  <th className="px-5 py-3">Username</th>
+                  <th className="px-5 py-3">Role</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3">Created</th>
                   <th className="px-5 py-3" />
                 </tr>
               </thead>

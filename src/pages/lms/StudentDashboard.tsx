@@ -90,37 +90,37 @@ export function StudentDashboard() {
   const grades = dashboard?.recentGrades ?? []
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       {/* Header */}
-      <div className="lms-fade-up lms-fade-up-1 mb-8">
-        <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-          Student Portal
-        </span>
-        <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">
+      <div className="lms-fade-up lms-fade-up-1 mb-6">
+        <h1 className="text-xl font-bold text-slate-900">
           Welcome back{user?.fullName ? `, ${user.fullName.split(' ')[0]}` : ''}
         </h1>
-        <p className="mt-1 text-slate-500">Here's an overview of your learning activity.</p>
+        <p className="mt-0.5 text-sm text-slate-500">Here's an overview of your learning activity.</p>
       </div>
 
       {/* Stats ribbon */}
-      <div className="lms-fade-up lms-fade-up-2 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="lms-fade-up lms-fade-up-2 mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {loading
           ? Array.from({ length: 3 }).map((_, i) => <StatSkeleton key={i} />)
           : statsData.map(({ icon, val, suffix, label }) => (
-              <div key={label} className="lms-stat-card relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="text-2xl">{icon}</div>
-                <div className="mt-3 text-2xl font-bold text-indigo-700">
+              <div key={label} className="lms-stat-card relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="text-xl">{icon}</div>
+                <div className="mt-2 text-3xl font-bold text-indigo-700">
                   <Counter target={val} suffix={suffix} />
                 </div>
-                <div className="mt-1 text-sm text-slate-500">{label}</div>
+                <div className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-500">{label}</div>
               </div>
             ))}
       </div>
 
-      <div className="lms-fade-up lms-fade-up-3 grid gap-6 lg:grid-cols-2">
+      <div className="lms-fade-up lms-fade-up-3 grid gap-4 lg:grid-cols-2">
         {/* Upcoming session */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-base font-semibold text-slate-900">Upcoming Session</h2>
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-indigo-900 bg-indigo-950 px-4 py-3">
+            <h2 className="text-sm font-semibold text-white">Upcoming Session</h2>
+          </div>
+          <div className="p-5">
           {loading ? (
             <div className="space-y-3">
               <div className="h-5 w-48 animate-pulse rounded bg-slate-200" />
@@ -133,7 +133,7 @@ export function StudentDashboard() {
             <div>
               <p className="font-medium text-slate-900">{session.courseTitle}</p>
               <p className="mt-0.5 text-sm text-slate-500">{session.lessonTitle}</p>
-              <p className="mt-1 text-xs text-slate-400">{formatScheduled(session.scheduledAt)}</p>
+              <p className="mt-1 text-xs font-medium text-indigo-600">{formatScheduled(session.scheduledAt)}</p>
               <div className="mt-4">
                 {session.meetingLink ? (
                   <a
@@ -152,11 +152,15 @@ export function StudentDashboard() {
               </div>
             </div>
           )}
+          </div>
         </div>
 
         {/* Recent grades */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-base font-semibold text-slate-900">Recent Grades</h2>
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-indigo-900 bg-indigo-950 px-4 py-3">
+            <h2 className="text-sm font-semibold text-white">Recent Grades</h2>
+          </div>
+          <div className="p-5">
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -194,6 +198,7 @@ export function StudentDashboard() {
               ))}
             </ul>
           )}
+          </div>
         </div>
       </div>
     </div>

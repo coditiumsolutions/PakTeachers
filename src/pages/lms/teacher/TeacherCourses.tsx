@@ -63,13 +63,17 @@ export function TeacherCourses() {
   }, [teacherId])
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-      <div className="lms-fade-up lms-fade-up-1 mb-8">
-        <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-          Teacher Portal
-        </span>
-        <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">My Courses</h1>
-        <p className="mt-1 text-slate-500">All courses assigned to you with enrolment and module counts.</p>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="lms-fade-up lms-fade-up-1 mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">My Courses</h1>
+          <p className="mt-0.5 text-sm text-slate-500">All courses assigned to you with enrolment and module counts.</p>
+        </div>
+        {!loading && courses && (
+          <span className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+            {courses.length} course{courses.length !== 1 ? 's' : ''}
+          </span>
+        )}
       </div>
 
       {loading ? (
@@ -85,28 +89,33 @@ export function TeacherCourses() {
           {courses.map((c) => (
             <div
               key={c.courseId}
-              className="lms-panel-card rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              className="lms-panel-card rounded-2xl border border-slate-200 bg-white shadow-sm"
             >
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-semibold text-slate-900 leading-tight">{c.title}</h3>
-                <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${statusStyle(c.status)}`}>
-                  {c.status}
-                </span>
-              </div>
+              {/* Navy accent top border */}
+              <div className="h-1 w-full rounded-t-2xl bg-indigo-950" />
 
-              {c.gradeLevel && (
-                <p className="mt-1.5 text-sm text-slate-500">{c.gradeLevel}</p>
-              )}
+              <div className="p-5">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-slate-900 leading-tight">{c.title}</h3>
+                  <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${statusStyle(c.status)}`}>
+                    {c.status}
+                  </span>
+                </div>
 
-              <div className="mt-4 flex items-center gap-5 text-sm text-slate-600">
-                <span className="flex items-center gap-1">
-                  <span className="text-base">👥</span>
-                  {c.enrolledStudentCount} student{c.enrolledStudentCount !== 1 ? 's' : ''}
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="text-base">📦</span>
-                  {c.moduleCount} module{c.moduleCount !== 1 ? 's' : ''}
-                </span>
+                {c.gradeLevel && (
+                  <p className="mt-1.5 text-sm text-slate-500">{c.gradeLevel}</p>
+                )}
+
+                <div className="mt-4 flex items-center gap-5 text-sm text-slate-600">
+                  <span className="flex items-center gap-1">
+                    <span className="text-base">👥</span>
+                    {c.enrolledStudentCount} student{c.enrolledStudentCount !== 1 ? 's' : ''}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="text-base">📦</span>
+                    {c.moduleCount} module{c.moduleCount !== 1 ? 's' : ''}
+                  </span>
+                </div>
               </div>
             </div>
           ))}

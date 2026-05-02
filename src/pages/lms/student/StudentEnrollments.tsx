@@ -60,13 +60,17 @@ export function StudentEnrollments() {
   }, [studentId])
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-      <div className="lms-fade-up lms-fade-up-1 mb-8">
-        <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-          Student Portal
-        </span>
-        <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">My Courses</h1>
-        <p className="mt-1 text-slate-500">Your full enrollment history across all courses.</p>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="lms-fade-up lms-fade-up-1 mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">My Courses</h1>
+          <p className="mt-0.5 text-sm text-slate-500">Your full enrollment history across all courses.</p>
+        </div>
+        {!loading && enrollments && (
+          <span className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+            {enrollments.length} enrollment{enrollments.length !== 1 ? 's' : ''}
+          </span>
+        )}
       </div>
 
       <div className="lms-fade-up lms-fade-up-2 space-y-3">
@@ -80,7 +84,7 @@ export function StudentEnrollments() {
           )
           : enrollments.map((e) => (
             <div key={e.enrollmentId} className="lms-course-row flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-base">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-950 text-sm">
                 📚
               </div>
               <div className="min-w-0 flex-1">

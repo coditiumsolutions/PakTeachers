@@ -67,23 +67,21 @@ export function StudentPayments() {
     .reduce((sum, p) => sum + p.amountPkr, 0) ?? 0
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-      <div className="lms-fade-up lms-fade-up-1 mb-8">
-        <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-          Student Portal
-        </span>
-        <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">Billing</h1>
-        <p className="mt-1 text-slate-500">Your complete payment history.</p>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="lms-fade-up lms-fade-up-1 mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">Billing</h1>
+          <p className="mt-0.5 text-sm text-slate-500">Your complete payment history.</p>
+        </div>
+        {!loading && payments?.length ? (
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm">
+            <span className="text-xs text-slate-500">Total paid</span>
+            <span className="text-sm font-bold text-indigo-700">{formatPKR(total)}</span>
+          </div>
+        ) : null}
       </div>
 
-      {!loading && payments?.length ? (
-        <div className="lms-fade-up lms-fade-up-2 mb-5 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 shadow-sm">
-          <span className="text-sm text-slate-500">Total paid</span>
-          <span className="text-base font-bold text-indigo-700">{formatPKR(total)}</span>
-        </div>
-      ) : null}
-
-      <div className="lms-fade-up lms-fade-up-3 space-y-3">
+      <div className="lms-fade-up lms-fade-up-2 space-y-3">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => <RowSkeleton key={i} />)
           : !payments?.length

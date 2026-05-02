@@ -140,16 +140,22 @@ export function AdminProfileSettings() {
   const isReadOnly = isSupportViewingOther
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-12">
-      <div className="lms-fade-up lms-fade-up-1 mb-8">
-        <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
+    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <div className="lms-fade-up lms-fade-up-1 mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">My Account</h1>
+          <p className="mt-0.5 text-sm text-slate-500">Manage your admin profile.</p>
+        </div>
+        <span className="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
           Admin View
         </span>
-        <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">My Account</h1>
-        <p className="mt-1 text-slate-500">Manage your admin profile.</p>
       </div>
 
-      <div className="lms-fade-up lms-fade-up-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="lms-fade-up lms-fade-up-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-indigo-900 bg-indigo-950 px-5 py-3">
+          <p className="text-sm font-semibold text-white">Account Details</p>
+        </div>
+        <div className="p-6">
         {loading ? (
           <FormSkeleton />
         ) : (
@@ -209,6 +215,7 @@ export function AdminProfileSettings() {
             )}
           </form>
         )}
+        </div>
       </div>
     </div>
   )

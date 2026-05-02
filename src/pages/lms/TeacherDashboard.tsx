@@ -29,7 +29,7 @@ function Counter({ target }: { target: number }) {
         if (!e.isIntersecting) return
         ob.disconnect()
         let start: number | null = null
-        const dur = 1100
+        const dur = 900
         const tick = (ts: number) => {
           if (!start) start = ts
           const p = Math.min((ts - start) / dur, 1)
@@ -46,14 +46,26 @@ function Counter({ target }: { target: number }) {
   return <span ref={ref}>{val.toLocaleString()}</span>
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────────
+// ── Skeletons ─────────────────────────────────────────────────────────────────
 
 function StatSkeleton() {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="h-6 w-6 animate-pulse rounded bg-slate-200" />
-      <div className="mt-3 h-8 w-16 animate-pulse rounded bg-slate-200" />
-      <div className="mt-1 h-4 w-24 animate-pulse rounded bg-slate-100" />
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-3 h-3 w-20 animate-pulse rounded bg-slate-200" />
+      <div className="h-7 w-12 animate-pulse rounded bg-slate-200" />
+    </div>
+  )
+}
+
+function SessionSkeleton() {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3">
+      <div className="h-8 w-8 animate-pulse rounded bg-slate-200 shrink-0" />
+      <div className="flex-1 space-y-1.5">
+        <div className="h-3.5 w-40 animate-pulse rounded bg-slate-200" />
+        <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
+      </div>
+      <div className="h-3 w-20 animate-pulse rounded bg-slate-100 shrink-0" />
     </div>
   )
 }
@@ -62,7 +74,6 @@ function StatSkeleton() {
 
 export function TeacherDashboard() {
   const { user } = useAuth()
-  // Admin can pass ?tid=42 to view any teacher's dashboard
   const { tid } = useParams<{ tid?: string }>()
 
   const teacherId = (() => {
@@ -95,111 +106,151 @@ export function TeacherDashboard() {
       .finally(() => setLoading(false))
   }, [teacherId])
 
+  const courseLink  = isAdminView ? `/admin/teacher/${teacherId}/courses`  : '/teacher-dashboard/courses'
+  const schedLink   = isAdminView ? `/admin/teacher/${teacherId}/schedule` : '/teacher-dashboard/schedule'
+  const trialsLink  = isAdminView ? `/admin/teacher/${teacherId}/trials`   : '/teacher-dashboard/trials'
+
   const stats = dashboard
     ? [
-        { icon: '📚', val: dashboard.activeCoursesCount, label: 'Active Courses', link: isAdminView ? `/admin/teacher/${teacherId}/courses` : '/teacher-dashboard/courses' },
-        { icon: '👥', val: dashboard.totalStudentsCount, label: 'Total Students', link: null },
-        { icon: '🧪', val: dashboard.pendingTrialsCount, label: 'Pending Trials', link: isAdminView ? `/admin/teacher/${teacherId}/trials` : '/teacher-dashboard/trials' },
-        { icon: '✅', val: dashboard.completedSessionsThisMonth, label: 'Sessions This Month', link: isAdminView ? `/admin/teacher/${teacherId}/schedule` : '/teacher-dashboard/schedule' },
+        { label: 'Active Courses',      val: dashboard.activeCoursesCount,          link: courseLink },
+        { label: 'Total Students',       val: dashboard.totalStudentsCount,          link: null },
+        { label: 'Pending Trials',       val: dashboard.pendingTrialsCount,          link: trialsLink },
+        { label: 'Sessions This Month',  val: dashboard.completedSessionsThisMonth,  link: schedLink },
       ]
     : null
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-      {/* Header */}
-      <div className="lms-fade-up lms-fade-up-1 mb-8">
-        <span className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-          {isAdminView ? `Viewing Teacher #${teacherId}` : 'Teacher Portal'}
-        </span>
-        <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">Instructor Dashboard</h1>
-        <p className="mt-1 text-slate-500">Manage your classes and track student performance.</p>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+
+      {/* ── Page header row ──────────────────────────────────────────────────── */}
+      <div className="lms-fade-up lms-fade-up-1 mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">
+            {isAdminView ? `Teacher #${teacherId} — Dashboard` : 'Instructor Dashboard'}
+          </h1>
+          <p className="mt-0.5 text-sm text-slate-500">
+            {isAdminView ? 'Admin view — read only.' : 'Your classes, schedule and trial requests at a glance.'}
+          </p>
+        </div>
+        {isAdminView && (
+          <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+            Admin View
+          </span>
+        )}
       </div>
 
-      {/* Quick-stat cards */}
-      <div className="lms-fade-up lms-fade-up-2 mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      {/* ── Stat strip ───────────────────────────────────────────────────────── */}
+      <div className="lms-fade-up lms-fade-up-2 mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {loading || !stats
           ? Array.from({ length: 4 }).map((_, i) => <StatSkeleton key={i} />)
-          : stats.map(({ icon, val, label, link }) => (
-              <div key={label} className="lms-stat-card relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="text-2xl">{icon}</div>
-                <div className="mt-3 text-2xl font-bold text-indigo-700">
+          : stats.map(({ label, val, link }) => (
+              <div key={label} className="lms-stat-card relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p className="mb-2 text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</p>
+                <p className="text-3xl font-bold text-indigo-700">
                   <Counter target={val} />
-                </div>
-                <div className="mt-1 text-sm text-slate-500">{label}</div>
+                </p>
                 {link && (
-                  <Link to={link} className="mt-3 inline-block text-xs font-semibold text-indigo-600 hover:text-indigo-800">
-                    View all →
+                  <Link to={link} className="mt-2 inline-block text-xs font-semibold text-indigo-500 hover:text-indigo-700 transition-colors">
+                    View →
                   </Link>
                 )}
               </div>
             ))}
       </div>
 
-      {/* Upcoming sessions widget */}
-      <div className="lms-fade-up lms-fade-up-3 mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-900">Upcoming Sessions</h2>
-          <Link
-            to={isAdminView ? `/admin/teacher/${teacherId}/schedule` : '/teacher-dashboard/schedule'}
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
-          >
-            View all →
-          </Link>
+      {/* ── Two-column layout: sessions + quick nav ───────────────────────────── */}
+      <div className="grid gap-4 lg:grid-cols-3">
+
+        {/* Upcoming sessions — takes 2/3 */}
+        <div className="lms-fade-up lms-fade-up-3 lg:col-span-2">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            {/* Panel header */}
+            <div className="flex items-center justify-between border-b border-slate-100 bg-indigo-950 px-4 py-3">
+              <h2 className="text-sm font-semibold text-white">Upcoming Sessions</h2>
+              <Link to={schedLink} className="text-xs font-semibold text-indigo-300 hover:text-white transition-colors">
+                View all →
+              </Link>
+            </div>
+
+            <div className="divide-y divide-slate-100">
+              {loading ? (
+                <div className="space-y-0 divide-y divide-slate-100">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="px-4 py-3"><SessionSkeleton /></div>
+                  ))}
+                </div>
+              ) : dashboard?.upcomingSessions.length ? (
+                dashboard.upcomingSessions.slice(0, 5).map((s) => (
+                  <div key={s.sessionId} className="lms-course-row flex items-center gap-3 px-4 py-3 hover:bg-indigo-50/40">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-indigo-100 text-sm">
+                      🗓
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-slate-900 leading-tight">{s.courseTitle}</p>
+                      <p className="truncate text-xs text-slate-500">{s.lessonTitle}</p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                      {formatScheduled(s.scheduledAt)}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className="px-4 py-10 text-center text-sm text-slate-400">
+                  No upcoming sessions scheduled.
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        {loading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="h-11 w-11 animate-pulse rounded-lg bg-slate-200" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
-                  <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
-                </div>
+        {/* Quick nav — takes 1/3 */}
+        <div className="lms-fade-up lms-fade-up-4 flex flex-col gap-3">
+          {[
+            {
+              label: 'My Courses',
+              desc: 'Enrolment & module counts',
+              icon: '📚',
+              to: courseLink,
+              count: dashboard?.activeCoursesCount,
+            },
+            {
+              label: 'My Schedule',
+              desc: 'Sessions & meeting links',
+              icon: '📅',
+              to: schedLink,
+              count: null,
+            },
+            {
+              label: 'Trial Classes',
+              desc: 'Pending & completed trials',
+              icon: '🧪',
+              to: trialsLink,
+              count: dashboard?.pendingTrialsCount,
+            },
+          ].map(({ label, desc, icon, to, count }) => (
+            <Link
+              key={label}
+              to={to}
+              className="lms-panel-card flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm hover:border-indigo-300"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-950 text-base">
+                {icon}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-slate-900 leading-tight">{label}</p>
+                <p className="text-xs text-slate-500">{desc}</p>
               </div>
-            ))}
-          </div>
-        ) : dashboard?.upcomingSessions.length ? (
-          <div className="space-y-3">
-            {dashboard.upcomingSessions.slice(0, 3).map((s) => (
-              <div key={s.sessionId} className="lms-course-row flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-lg">
-                  🗓
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-slate-900">{s.courseTitle}</p>
-                  <p className="mt-0.5 truncate text-sm text-slate-500">{s.lessonTitle}</p>
-                </div>
-                <span className="shrink-0 text-sm font-medium text-indigo-600">
-                  {formatScheduled(s.scheduledAt)}
+              {count != null && !loading && (
+                <span className="shrink-0 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700">
+                  {count}
                 </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-400">
-            No upcoming sessions scheduled.
-          </div>
-        )}
-      </div>
-
-      {/* Quick links */}
-      <div className="lms-fade-up lms-fade-up-4 grid gap-4 sm:grid-cols-3">
-        {[
-          { label: 'My Courses', desc: 'View and manage your active courses', icon: '📚', to: isAdminView ? `/admin/teacher/${teacherId}/courses` : '/teacher-dashboard/courses' },
-          { label: 'My Schedule', desc: 'Live sessions, status and meeting links', icon: '📅', to: isAdminView ? `/admin/teacher/${teacherId}/schedule` : '/teacher-dashboard/schedule' },
-          { label: 'Trial Classes', desc: 'Pending and completed trial requests', icon: '🧪', to: isAdminView ? `/admin/teacher/${teacherId}/trials` : '/teacher-dashboard/trials' },
-        ].map(({ label, desc, icon, to }) => (
-          <Link
-            key={label}
-            to={to}
-            className="lms-panel-card flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-          >
-            <span className="text-2xl">{icon}</span>
-            <p className="font-semibold text-slate-900">{label}</p>
-            <p className="text-sm text-slate-500">{desc}</p>
-          </Link>
-        ))}
+              )}
+              <svg className="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   )

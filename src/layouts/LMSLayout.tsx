@@ -102,19 +102,19 @@ export function LMSLayout() {
     <>
       <style>{ANIM_STYLES}</style>
 
-      {/* LMS top bar */}
-      <div className="border-b border-slate-200 bg-white">
+      {/* LMS top bar — navy */}
+      <div className="border-b border-indigo-900 bg-indigo-950">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-6">
-            <Link to={dashboardRoute} className="text-sm font-bold tracking-wide text-indigo-700">
+            <Link to={dashboardRoute} className="text-sm font-bold tracking-widest text-white">
               PTLMS
             </Link>
-            <nav className="flex gap-1">
+            <nav className="flex gap-0.5">
               {navLinks.map(({ label, to }) => (
                 <Link
                   key={to}
                   to={to}
-                  className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                  className="rounded-md px-3 py-1.5 text-sm font-medium text-indigo-200 transition hover:bg-indigo-800 hover:text-white"
                 >
                   {label}
                 </Link>
@@ -125,14 +125,14 @@ export function LMSLayout() {
           <div className="flex items-center gap-3">
             {user && (
               <div className="hidden flex-col items-end sm:flex">
-                <span className="text-xs font-medium text-slate-700">{user.fullName || user.username}</span>
-                <span className="text-xs text-slate-400">{roleLabel} Session</span>
+                <span className="text-xs font-medium text-white">{user.fullName || user.username}</span>
+                <span className="text-xs text-indigo-400">{roleLabel} Session</span>
               </div>
             )}
             <button
               type="button"
               onClick={() => void logout()}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+              className="rounded-lg border border-indigo-700 px-3 py-1.5 text-xs font-semibold text-indigo-200 transition hover:bg-indigo-800 hover:text-white"
             >
               Logout
             </button>
@@ -141,7 +141,7 @@ export function LMSLayout() {
       </div>
 
       {/* Dashboard content */}
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-100">
         <Outlet />
       </div>
     </>
