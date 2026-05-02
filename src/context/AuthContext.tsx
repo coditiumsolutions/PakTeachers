@@ -29,6 +29,13 @@ function normalizeRole(raw: string): NormalizedRole {
   return null
 }
 
+function parseAdminRole(raw: string): 'super_admin' | 'support' | null {
+  const r = raw.toLowerCase()
+  if (r === 'super_admin') return 'super_admin'
+  if (r === 'support') return 'support'
+  return null
+}
+
 // ── Context shape ──────────────────────────────────────────────────────────────
 
 export interface AuthUser {
@@ -36,6 +43,8 @@ export interface AuthUser {
   username: string
   fullName: string
   role: NormalizedRole
+  /** Populated only for admin users; distinguishes super_admin from support. */
+  adminRole: 'super_admin' | 'support' | null
 }
 
 interface AuthContextValue {
@@ -73,6 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             username: p.username,
             fullName: p.fullName,
             role: normalizeRole(p.role),
+            adminRole: parseAdminRole(p.role),
           })
         } else {
           clearAuth()
@@ -129,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (profileRes.success && profileRes.data) {
       const p: UserProfileDTO = profileRes.data
       const role = normalizeRole(p.role)
-      setUser({ id: p.id, username: p.username, fullName: p.fullName, role })
+      setUser({ id: p.id, username: p.username, fullName: p.fullName, role, adminRole: parseAdminRole(p.role) })
       navigate(roleToRoute(role), { replace: true })
     }
   }, [navigate])

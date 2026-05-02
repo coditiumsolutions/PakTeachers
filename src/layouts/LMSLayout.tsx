@@ -90,8 +90,12 @@ export function LMSLayout() {
           { label: 'Profile',    to: '/student-dashboard/profile' },
         ]
       : [
-          // admin
-          { label: 'Dashboard', to: '/admin-dashboard' },
+          // admin — hide User Management for support role
+          { label: 'Dashboard',   to: '/admin-dashboard' },
+          { label: 'My Account',  to: '/admin/profile' },
+          ...(user?.adminRole !== 'support'
+            ? [{ label: 'User Management', to: '/admin/manage-admins' }]
+            : []),
         ]
 
   return (

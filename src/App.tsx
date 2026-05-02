@@ -20,6 +20,8 @@ import { StudentProgress } from './pages/lms/student/StudentProgress'
 import { StudentSubmissions } from './pages/lms/student/StudentSubmissions'
 import { StudentPayments } from './pages/lms/student/StudentPayments'
 import { ProfileSettings } from './pages/lms/student/ProfileSettings'
+import { ManageAdmins } from './pages/lms/admin/ManageAdmins'
+import { AdminProfileSettings } from './pages/lms/admin/AdminProfileSettings'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
@@ -72,6 +74,9 @@ export default function App() {
             <Route path="/admin/teacher/:tid/trials" element={<ProtectedRoute allowedRole="admin"><TeacherTrials /></ProtectedRoute>} />
 
             <Route path="/admin-dashboard" element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/profile"   element={<ProtectedRoute allowedRole="admin"><AdminProfileSettings /></ProtectedRoute>} />
+            <Route path="/admin/manage-admins" element={<ProtectedRoute allowedRole="admin"><ManageAdmins /></ProtectedRoute>} />
+            <Route path="/admin/manage-admins/:aid/profile" element={<ProtectedRoute allowedRole="admin"><AdminProfileSettings /></ProtectedRoute>} />
           </Route>
         </Routes>
       </AuthProvider>
