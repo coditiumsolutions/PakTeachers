@@ -71,6 +71,24 @@ export function LMSLayout() {
     : user?.role === 'teacher' ? '/teacher-dashboard'
     : '/admin-dashboard'
 
+  // Role-aware nav links
+  const navLinks =
+    user?.role === 'teacher'
+      ? [
+          { label: 'Dashboard', to: '/teacher-dashboard' },
+          { label: 'Courses',   to: '/teacher-dashboard/courses' },
+          { label: 'Schedule',  to: '/teacher-dashboard/schedule' },
+          { label: 'Trials',    to: '/teacher-dashboard/trials' },
+        ]
+      : user?.role === 'student'
+      ? [
+          { label: 'Dashboard', to: '/student-dashboard' },
+        ]
+      : [
+          // admin
+          { label: 'Dashboard', to: '/admin-dashboard' },
+        ]
+
   return (
     <>
       <style>{ANIM_STYLES}</style>
@@ -79,28 +97,19 @@ export function LMSLayout() {
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-6">
-            <Link to="/lms" className="text-sm font-bold tracking-wide text-indigo-700">
+            <Link to={dashboardRoute} className="text-sm font-bold tracking-wide text-indigo-700">
               PTLMS
             </Link>
             <nav className="flex gap-1">
-              <Link
-                to={dashboardRoute}
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/lms/courses"
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-              >
-                Courses
-              </Link>
-              <Link
-                to="/lms/profile"
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-              >
-                Profile
-              </Link>
+              {navLinks.map(({ label, to }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                >
+                  {label}
+                </Link>
+              ))}
             </nav>
           </div>
 
