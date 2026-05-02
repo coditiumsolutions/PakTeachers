@@ -82,7 +82,12 @@ export function LMSLayout() {
         ]
       : user?.role === 'student'
       ? [
-          { label: 'Dashboard', to: '/student-dashboard' },
+          { label: 'Dashboard',  to: '/student-dashboard' },
+          { label: 'Courses',    to: '/student-dashboard/courses' },
+          { label: 'Progress',   to: '/student-dashboard/progress' },
+          { label: 'Results',    to: '/student-dashboard/results' },
+          { label: 'Billing',    to: '/student-dashboard/billing' },
+          { label: 'Profile',    to: '/student-dashboard/profile' },
         ]
       : [
           // admin

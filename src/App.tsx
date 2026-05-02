@@ -15,6 +15,11 @@ import { AdminDashboard } from './pages/lms/AdminDashboard'
 import { TeacherCourses } from './pages/lms/teacher/TeacherCourses'
 import { TeacherSchedule } from './pages/lms/teacher/TeacherSchedule'
 import { TeacherTrials } from './pages/lms/teacher/TeacherTrials'
+import { StudentEnrollments } from './pages/lms/student/StudentEnrollments'
+import { StudentProgress } from './pages/lms/student/StudentProgress'
+import { StudentSubmissions } from './pages/lms/student/StudentSubmissions'
+import { StudentPayments } from './pages/lms/student/StudentPayments'
+import { ProfileSettings } from './pages/lms/student/ProfileSettings'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
@@ -40,6 +45,19 @@ export default function App() {
           {/* ── LMS dashboards (LMSLayout: PTLMS top bar only) ── */}
           <Route element={<LMSLayout />}>
             <Route path="/student-dashboard" element={<ProtectedRoute allowedRole="student"><StudentDashboard /></ProtectedRoute>} />
+            <Route path="/student-dashboard/courses"  element={<ProtectedRoute allowedRole="student"><StudentEnrollments /></ProtectedRoute>} />
+            <Route path="/student-dashboard/progress" element={<ProtectedRoute allowedRole="student"><StudentProgress /></ProtectedRoute>} />
+            <Route path="/student-dashboard/results"  element={<ProtectedRoute allowedRole="student"><StudentSubmissions /></ProtectedRoute>} />
+            <Route path="/student-dashboard/billing"  element={<ProtectedRoute allowedRole="student"><StudentPayments /></ProtectedRoute>} />
+            <Route path="/student-dashboard/profile"  element={<ProtectedRoute allowedRole="student"><ProfileSettings /></ProtectedRoute>} />
+
+            {/* Admin-view student routes */}
+            <Route path="/admin/student/:sid/view"     element={<ProtectedRoute allowedRole="admin"><StudentDashboard /></ProtectedRoute>} />
+            <Route path="/admin/student/:sid/courses"  element={<ProtectedRoute allowedRole="admin"><StudentEnrollments /></ProtectedRoute>} />
+            <Route path="/admin/student/:sid/progress" element={<ProtectedRoute allowedRole="admin"><StudentProgress /></ProtectedRoute>} />
+            <Route path="/admin/student/:sid/results"  element={<ProtectedRoute allowedRole="admin"><StudentSubmissions /></ProtectedRoute>} />
+            <Route path="/admin/student/:sid/billing"  element={<ProtectedRoute allowedRole="admin"><StudentPayments /></ProtectedRoute>} />
+            <Route path="/admin/student/:sid/profile"  element={<ProtectedRoute allowedRole="admin"><ProfileSettings /></ProtectedRoute>} />
 
             {/* Teacher routes — restricted to own ID */}
             <Route path="/teacher-dashboard" element={<ProtectedRoute allowedRole="teacher"><TeacherDashboard /></ProtectedRoute>} />

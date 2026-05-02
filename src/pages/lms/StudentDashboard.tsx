@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import { studentService, type StudentDashboardDTO } from '../../lib/studentService'
+import { alertAccessDenied, alertGenericError } from '../../lib/alertService'
+import { formatScheduled } from '../../lib/formatters'
+
+// ── Counter animation ─────────────────────────────────────────────────────────
 
 function Counter({ target, suffix = '' }: { target: number; suffix?: string }) {
   const [val, setVal] = useState(0)
@@ -27,39 +33,62 @@ function Counter({ target, suffix = '' }: { target: number; suffix?: string }) {
   return <span ref={ref}>{val.toLocaleString()}{suffix}</span>
 }
 
-function ProgressBar({ value }: { value: number }) {
-  const [width, setWidth] = useState(0)
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const ob = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return
-      ob.disconnect()
-      setTimeout(() => setWidth(value), 80)
-    })
-    if (ref.current) ob.observe(ref.current)
-    return () => ob.disconnect()
-  }, [value])
+// ── Skeletons ─────────────────────────────────────────────────────────────────
+
+function StatSkeleton() {
   return (
-    <div ref={ref} className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
-      <div className="lms-progress-fill" style={{ width: `${width}%` }} />
+    <div className="lms-stat-card relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="h-6 w-6 animate-pulse rounded bg-slate-200" />
+      <div className="mt-3 h-7 w-20 animate-pulse rounded bg-slate-200" />
+      <div className="mt-2 h-4 w-28 animate-pulse rounded bg-slate-100" />
     </div>
   )
 }
 
-const courses = [
-  { abbr: 'MTH', title: 'Mathematics — Algebra', sub: 'Grade 9 · Mr. Khalid', progress: 65 },
-  { abbr: 'PHY', title: 'Physics — Mechanics', sub: 'Grade 10 · Ms. Nadia', progress: 40 },
-  { abbr: 'ENG', title: 'English Literature', sub: 'Grade 11 · Mr. Tariq', progress: 80 },
-]
-
-const stats = [
-  { icon: '📚', val: 5, suffix: '', label: 'Enrolled Courses' },
-  { icon: '✅', val: 24, suffix: '', label: 'Lessons Completed' },
-  { icon: '📝', val: 8, suffix: '', label: 'Quizzes Taken' },
-  { icon: '🏆', val: 87, suffix: '%', label: 'Average Score' },
-]
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export function StudentDashboard() {
+  const { user } = useAuth()
+  const { sid } = useParams<{ sid?: string }>()
+
+  const studentId = (() => {
+    if (user?.role === 'admin' && sid) {
+      const p = parseInt(sid, 10)
+      return isNaN(p) ? user.id : p
+    }
+    return user?.id ?? 0
+  })()
+
+  const [dashboard, setDashboard] = useState<StudentDashboardDTO | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!studentId) return
+    studentService
+      .getStudentDashboard(studentId)
+      .then(setDashboard)
+      .catch((err: unknown) => {
+        const status = (err as { response?: { status?: number } }).response?.status
+        if (status === 403) {
+          void alertAccessDenied('You are not authorised to view this dashboard.')
+        } else {
+          void alertGenericError('Failed to load dashboard', 'Please try again later.')
+        }
+      })
+      .finally(() => setLoading(false))
+  }, [studentId])
+
+  const statsData = dashboard
+    ? [
+        { icon: '📚', val: dashboard.activeEnrollmentCount, suffix: '', label: 'Active Enrollments' },
+        { icon: '📈', val: Math.round(dashboard.overallCompletionPercent), suffix: '%', label: 'Overall Completion' },
+        { icon: '💳', val: dashboard.pendingPaymentCount, suffix: '', label: 'Pending Payments' },
+      ]
+    : []
+
+  const session = dashboard?.upcomingSession ?? null
+  const grades = dashboard?.recentGrades ?? []
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
       {/* Header */}
@@ -68,90 +97,103 @@ export function StudentDashboard() {
           Student Portal
         </span>
         <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">
-          Welcome back, Ahmed
+          Welcome back{user?.fullName ? `, ${user.fullName.split(' ')[0]}` : ''}
         </h1>
-        <p className="mt-1 text-slate-500">Track your learning progress and upcoming sessions.</p>
+        <p className="mt-1 text-slate-500">Here's an overview of your learning activity.</p>
       </div>
 
-      {/* Stats */}
-      <div className="lms-fade-up lms-fade-up-2 mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {stats.map(({ icon, val, suffix, label }) => (
-          <div
-            key={label}
-            className="lms-stat-card relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-          >
-            <div className="text-2xl">{icon}</div>
-            <div className="mt-3 text-2xl font-bold text-indigo-700">
-              <Counter target={val} suffix={suffix} />
-            </div>
-            <div className="mt-1 text-sm text-slate-500">{label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* My Courses */}
-      <div className="lms-fade-up lms-fade-up-3 mb-8">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900">My Courses</h2>
-        <div className="space-y-3">
-          {courses.map(({ abbr, title, sub, progress }) => (
-            <div
-              key={title}
-              className="lms-course-row flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-xs font-bold text-indigo-600">
-                {abbr}
+      {/* Stats ribbon */}
+      <div className="lms-fade-up lms-fade-up-2 mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {loading
+          ? Array.from({ length: 3 }).map((_, i) => <StatSkeleton key={i} />)
+          : statsData.map(({ icon, val, suffix, label }) => (
+              <div key={label} className="lms-stat-card relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="text-2xl">{icon}</div>
+                <div className="mt-3 text-2xl font-bold text-indigo-700">
+                  <Counter target={val} suffix={suffix} />
+                </div>
+                <div className="mt-1 text-sm text-slate-500">{label}</div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium text-slate-900">{title}</p>
-                <p className="text-xs text-slate-500">{sub}</p>
-                <ProgressBar value={progress} />
-                <p className="mt-1 text-xs text-indigo-600">{progress}% complete</p>
-              </div>
-              <Link
-                to="/lms/course"
-                className="shrink-0 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-700"
-              >
-                Continue →
-              </Link>
-            </div>
-          ))}
-        </div>
+            ))}
       </div>
 
-      {/* Upcoming & Quizzes */}
-      <div className="lms-fade-up lms-fade-up-4 grid gap-5 sm:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 font-semibold text-slate-900">📅 Upcoming Lessons</h3>
-          <ul className="space-y-3">
-            {[
-              { time: 'Mon · 10:00 AM', title: 'Algebra — Quadratic Eq.' },
-              { time: 'Tue · 2:00 PM', title: "Physics — Newton's Laws" },
-              { time: 'Wed · 11:00 AM', title: 'English — Shakespeare' },
-            ].map(({ time, title }) => (
-              <li key={title} className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                <span className="shrink-0 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-600">
-                  {time}
-                </span>
-                <span className="text-right text-sm text-slate-700">{title}</span>
-              </li>
-            ))}
-          </ul>
+      <div className="lms-fade-up lms-fade-up-3 grid gap-6 lg:grid-cols-2">
+        {/* Upcoming session */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-base font-semibold text-slate-900">Upcoming Session</h2>
+          {loading ? (
+            <div className="space-y-3">
+              <div className="h-5 w-48 animate-pulse rounded bg-slate-200" />
+              <div className="h-4 w-32 animate-pulse rounded bg-slate-100" />
+              <div className="h-9 w-28 animate-pulse rounded-lg bg-slate-100" />
+            </div>
+          ) : !session ? (
+            <p className="text-sm text-slate-400">No upcoming sessions scheduled.</p>
+          ) : (
+            <div>
+              <p className="font-medium text-slate-900">{session.courseTitle}</p>
+              <p className="mt-0.5 text-sm text-slate-500">{session.lessonTitle}</p>
+              <p className="mt-1 text-xs text-slate-400">{formatScheduled(session.scheduledAt)}</p>
+              <div className="mt-4">
+                {session.meetingLink ? (
+                  <a
+                    href={session.meetingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-indigo-700"
+                  >
+                    Join Class
+                  </a>
+                ) : (
+                  <p className="text-xs italic text-slate-400">
+                    Link becomes available 30 min before class
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 font-semibold text-slate-900">📝 Pending Quizzes</h3>
-          <ul className="space-y-3">
-            {[
-              { due: 'Due Jan 20', title: 'Mathematics — Chapter 5' },
-              { due: 'Due Jan 22', title: 'Physics — Motion Quiz' },
-            ].map(({ due, title }) => (
-              <li key={title} className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                <span className="shrink-0 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">
-                  {due}
-                </span>
-                <span className="text-right text-sm text-slate-700">{title}</span>
-              </li>
-            ))}
-          </ul>
+
+        {/* Recent grades */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-base font-semibold text-slate-900">Recent Grades</h2>
+          {loading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="h-4 w-36 animate-pulse rounded bg-slate-200" />
+                  <div className="h-5 w-12 animate-pulse rounded-full bg-slate-100" />
+                </div>
+              ))}
+            </div>
+          ) : !grades.length ? (
+            <p className="text-sm text-slate-400">No grades recorded yet.</p>
+          ) : (
+            <ul className="space-y-3">
+              {grades.slice(0, 3).map((g, i) => (
+                <li key={i} className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-slate-900">{g.assignmentTitle}</p>
+                    <p className="truncate text-xs text-slate-400">{g.courseTitle}</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    {g.score !== null && g.maxScore !== null && (
+                      <span className="text-xs font-semibold text-slate-700">
+                        {g.score}/{g.maxScore}
+                      </span>
+                    )}
+                    {g.passed !== null && (
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        g.passed ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
+                      }`}>
+                        {g.passed ? 'Pass' : 'Fail'}
+                      </span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
