@@ -191,7 +191,7 @@ async function showAddAdminModal(): Promise<CreateAdminPayload | null> {
 }
 
 export function ManageAdmins() {
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
   const navigate = useNavigate()
   const guardFired = useRef(false)
 
@@ -210,16 +210,16 @@ export function ManageAdmins() {
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
-  const isAuthorised = user?.adminRole === 'super_admin'
+  const isAuthorised = user?.role === 'admin' && user?.adminRole !== 'support'
 
-  // Guard: fire alert then redirect for any non-super_admin visitor.
+  // Guard: redirect first, alert second — matches ProtectedRoute pattern so the
+  // user lands on the destination page before the modal opens (not stuck on a blank page).
   useEffect(() => {
     if (!user || guardFired.current) return
     if (!isAuthorised) {
       guardFired.current = true
-      void alertAccessDenied('User Management is restricted to Super Admins.').then(() => {
-        navigate('/admin-dashboard', { replace: true })
-      })
+      navigate('/admin-dashboard', { replace: true })
+      void alertAccessDenied('User Management is restricted to Super Admins.')
     }
   }, [user, isAuthorised, navigate])
 
@@ -248,9 +248,8 @@ export function ManageAdmins() {
       })
       .catch((err: unknown) => {
         const status = (err as { response?: { status?: number } }).response?.status
-        if (status === 403) {
-          void alertAccessDenied()
-        } else {
+        // 403 is handled globally by AuthContext via pt:forbidden — don't double-alert
+        if (status !== 403) {
           void alertGenericError('Failed to load admins', 'Please try again later.')
         }
       })
@@ -262,7 +261,9 @@ export function ManageAdmins() {
     if (isAuthorised) fetchAdmins()
   }, [isAuthorised, fetchAdmins])
 
-  // Render nothing until auth state has settled and the user is confirmed authorised.
+  // Wait for auth hydration before making any access decision.
+  if (authLoading) return null
+  // Guard effect handles the redirect; return null briefly while it fires.
   if (!user || !isAuthorised) return null
 
   async function handleCreate() {

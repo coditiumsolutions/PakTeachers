@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { useAuth } from '../../../context/AuthContext'
 import { adminService, type AdminProfileDTO } from '../../../lib/adminService'
-import { alertAccessDenied, alertGenericError } from '../../../lib/alertService'
+import { alertGenericError } from '../../../lib/alertService'
 
 const base = Swal.mixin({
   allowOutsideClick: false,
@@ -102,9 +102,7 @@ export function AdminProfileSettings() {
       })
       .catch((err: unknown) => {
         const status = (err as { response?: { status?: number } }).response?.status
-        if (status === 403) {
-          void alertAccessDenied('You are not authorised to view this profile.')
-        } else {
+        if (status !== 403) {
           void alertGenericError('Failed to load profile', 'Please try again later.')
         }
       })
@@ -131,9 +129,7 @@ export function AdminProfileSettings() {
       })
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } }).response?.status
-      if (status === 403) {
-        void alertAccessDenied('You do not have permission to edit this profile.')
-      } else {
+      if (status !== 403) {
         void alertGenericError('Save Failed', 'Could not save profile changes. Please try again.')
       }
     } finally {
